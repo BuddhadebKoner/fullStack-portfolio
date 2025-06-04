@@ -145,7 +145,6 @@ const ProfileSchema = new Schema<IProfile>({
 });
 
 // Indexes
-ProfileSchema.index({ userId: 1 });
-ProfileSchema.index({ email: 1 });
+// userId and email indexes are already created by the unique: true property
 
 export default mongoose.models.Profile || mongoose.model<IProfile>('Profile', ProfileSchema);

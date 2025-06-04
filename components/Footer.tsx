@@ -13,7 +13,7 @@ interface FooterProps {
   name?: string;
 }
 
-export default function Footer({ year = 2025, name = "Aasu Yadav" }: FooterProps) {
+export default function Footer({ year = 2025}: FooterProps) {
   const [showAdmin, setShowAdmin] = useState(false);
   const { isAdmin, isLoading } = useAdmin();
 
@@ -22,7 +22,7 @@ export default function Footer({ year = 2025, name = "Aasu Yadav" }: FooterProps
       <footer className="w-full max-w-5xl text-left text-[#e0e0e0] text-sm mb-8 mt-auto">
         <div className="flex justify-between items-center">
           <div>
-            <p className="text-[#e0e0e0]">Copyright © {year} {name}</p>
+            <p className="text-[#e0e0e0]">Copyright © {year} buddhadeb</p>
           </div>
 
           <div className="flex items-center gap-4">
