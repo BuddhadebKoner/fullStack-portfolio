@@ -2,17 +2,16 @@ import { useState, useEffect } from 'react';
 
 export interface WorkExperienceData {
   _id: string;
-  jobTitle: string;
   company: string;
-  location: string;
+  position: string;
+  companyLogo?: string;
   startDate: string;
   endDate?: string;
   isCurrent: boolean;
-  description: string;
+  description?: string;
   technologies: string[];
-  achievements?: string[];
   order: number;
-  isPublic: boolean;
+  isVisible: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -23,12 +22,30 @@ interface WorkExperienceApiResponse {
   error?: string;
 }
 
+interface CreateWorkExperienceData {
+  company: string;
+  position: string;
+  companyLogo?: string;
+  startDate: string;
+  endDate?: string;
+  isCurrent?: boolean;
+  description?: string;
+  technologies?: string[];
+  order?: number;
+  isVisible?: boolean;
+}
+
+interface UpdateWorkExperienceData extends Partial<CreateWorkExperienceData> {}
+
 interface UseWorkExperienceReturn {
   workExperience: WorkExperienceData[];
   isLoading: boolean;
   error: string | null;
   fetchWorkExperience: () => Promise<void>;
   refreshWorkExperience: () => Promise<void>;
+  createWorkExperience: (data: CreateWorkExperienceData) => Promise<{ success: boolean; data?: WorkExperienceData; error?: string }>;
+  updateWorkExperience: (id: string, data: UpdateWorkExperienceData) => Promise<{ success: boolean; data?: WorkExperienceData; error?: string }>;
+  deleteWorkExperience: (id: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 export function useWorkExperience(): UseWorkExperienceReturn {
@@ -61,6 +78,80 @@ export function useWorkExperience(): UseWorkExperienceReturn {
     await fetchWorkExperience();
   };
 
+  const createWorkExperience = async (data: CreateWorkExperienceData) => {
+    try {
+      const response = await fetch('/api/work-experience', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        await fetchWorkExperience(); // Refresh the list
+      }
+
+      return result;
+    } catch (error) {
+      console.error('Error creating work experience:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to create work experience'
+      };
+    }
+  };
+
+  const updateWorkExperience = async (id: string, data: UpdateWorkExperienceData) => {
+    try {
+      const response = await fetch(`/api/work-experience/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        await fetchWorkExperience(); // Refresh the list
+      }
+
+      return result;
+    } catch (error) {
+      console.error('Error updating work experience:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to update work experience'
+      };
+    }
+  };
+
+  const deleteWorkExperience = async (id: string) => {
+    try {
+      const response = await fetch(`/api/work-experience/${id}`, {
+        method: 'DELETE',
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        await fetchWorkExperience(); // Refresh the list
+      }
+
+      return result;
+    } catch (error) {
+      console.error('Error deleting work experience:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to delete work experience'
+      };
+    }
+  };
+
   useEffect(() => {
     fetchWorkExperience();
   }, []);
@@ -71,5 +162,8 @@ export function useWorkExperience(): UseWorkExperienceReturn {
     error,
     fetchWorkExperience,
     refreshWorkExperience,
+    createWorkExperience,
+    updateWorkExperience,
+    deleteWorkExperience,
   };
 }

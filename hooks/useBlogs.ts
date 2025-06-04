@@ -19,8 +19,9 @@ export interface BlogData {
 
 interface BlogApiResponse {
   success: boolean;
-  data?: BlogData[];
+  data?: BlogData[] | BlogData;
   error?: string;
+  message?: string;
   pagination?: {
     page: number;
     limit: number;
@@ -35,6 +36,10 @@ interface UseBlogsReturn {
   error: string | null;
   fetchBlogs: () => Promise<void>;
   refreshBlogs: () => Promise<void>;
+  createBlog: (blogData: Partial<BlogData>) => Promise<boolean>;
+  updateBlog: (id: string, blogData: Partial<BlogData>) => Promise<boolean>;
+  deleteBlog: (id: string) => Promise<boolean>;
+  getBlog: (id: string) => Promise<BlogData | null>;
 }
 
 export function useBlogs(): UseBlogsReturn {
@@ -51,7 +56,8 @@ export function useBlogs(): UseBlogsReturn {
       const result: BlogApiResponse = await response.json();
 
       if (result.success && result.data) {
-        setBlogs(result.data);
+        const blogArray = Array.isArray(result.data) ? result.data : [result.data];
+        setBlogs(blogArray);
       } else {
         throw new Error(result.error || 'Failed to fetch blogs');
       }
@@ -67,6 +73,106 @@ export function useBlogs(): UseBlogsReturn {
     await fetchBlogs();
   };
 
+  const createBlog = async (blogData: Partial<BlogData>): Promise<boolean> => {
+    try {
+      setError(null);
+      
+      const response = await fetch('/api/blogs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(blogData),
+      });
+
+      const result: BlogApiResponse = await response.json();
+
+      if (result.success) {
+        await refreshBlogs(); // Refresh the list after creating
+        return true;
+      } else {
+        setError(result.error || 'Failed to create blog');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error creating blog:', error);
+      setError(error instanceof Error ? error.message : 'Failed to create blog');
+      return false;
+    }
+  };
+
+  const updateBlog = async (id: string, blogData: Partial<BlogData>): Promise<boolean> => {
+    try {
+      setError(null);
+      
+      const response = await fetch(`/api/blogs/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(blogData),
+      });
+
+      const result: BlogApiResponse = await response.json();
+
+      if (result.success) {
+        await refreshBlogs(); // Refresh the list after updating
+        return true;
+      } else {
+        setError(result.error || 'Failed to update blog');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error updating blog:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update blog');
+      return false;
+    }
+  };
+
+  const deleteBlog = async (id: string): Promise<boolean> => {
+    try {
+      setError(null);
+      
+      const response = await fetch(`/api/blogs/${id}`, {
+        method: 'DELETE',
+      });
+
+      const result: BlogApiResponse = await response.json();
+
+      if (result.success) {
+        await refreshBlogs(); // Refresh the list after deleting
+        return true;
+      } else {
+        setError(result.error || 'Failed to delete blog');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error deleting blog:', error);
+      setError(error instanceof Error ? error.message : 'Failed to delete blog');
+      return false;
+    }
+  };
+
+  const getBlog = async (id: string): Promise<BlogData | null> => {
+    try {
+      setError(null);
+      
+      const response = await fetch(`/api/blogs/${id}`);
+      const result: BlogApiResponse = await response.json();
+
+      if (result.success && result.data) {
+        return Array.isArray(result.data) ? result.data[0] : result.data;
+      } else {
+        setError(result.error || 'Failed to fetch blog');
+        return null;
+      }
+    } catch (error) {
+      console.error('Error fetching blog:', error);
+      setError(error instanceof Error ? error.message : 'Failed to fetch blog');
+      return null;
+    }
+  };
+
   useEffect(() => {
     fetchBlogs();
   }, []);
@@ -77,5 +183,9 @@ export function useBlogs(): UseBlogsReturn {
     error,
     fetchBlogs,
     refreshBlogs,
+    createBlog,
+    updateBlog,
+    deleteBlog,
+    getBlog,
   };
 }

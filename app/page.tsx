@@ -10,106 +10,65 @@ import ProjectsSection from "@/components/ProjectsSection";
 import ChatPopup from "@/components/ChatPopup";
 import FloatingChatButton from "@/components/FloatingChatButton";
 import Footer from "@/components/Footer";
-
-
-const skills = [
-  "Next JS",
-  "React",
-  "TypeScript",
-  "JavaScript",
-  "Node JS",
-  "Express",
-  "MongoDB",
-  "Appwrite",
-  "AWS",
-  "Tailwind CSS",
-  "Vercel",
-  "Git",
-  "Ai",
-];
-
-const blogs = [
-  {
-    title: "Top 5 Free React Native Ui Component Libraries in 2025",
-    desc: "Five awesome, free React Native component libraries that will boost your productivity and make your ...",
-  },
-  {
-    title: "How to Add Custom Fonts in React Native with Tailwind CSS",
-    desc: "Custom fonts in React Native can elevate your app's design and user experience. In this blog post, w...",
-  },
-  {
-    title: "Top 5 Note-Taking Platforms for Productivity and Creativity",
-    desc: "Note-Taking Platforms for Productivity and Creativity...",
-  },
-];
-
-const projects = [
-  {
-    title: "Build Portfolio",
-    desc: "It is a portfolio builder tool where you can create your portfolio in...",
-    img: "/images/portfolio.png",
-  },
-  {
-    title: "Developer Think",
-    desc: "Blog website for developers to share their thoughts and ideas.",
-    img: "/images/devthink.png",
-  },
-  {
-    title: "Resume Editor",
-    desc: "A resume editor tool where you can create your resume in...",
-    img: "/images/resume.png",
-  },
-  {
-    title: "Og Image Generator",
-    desc: "A og image generator tool where you can create og images in...",
-    img: "/images/ogimg.png",
-  },
-  {
-    title: "Persona AI",
-    desc: "A Hitesh and Piyush Sir Persona AI where you can chat with them.",
-    img: "/images/persona.png",
-  },
-  {
-    title: "Do Paste",
-    desc: "Share your text with anyone using this tool with a unique link.",
-    img: "/images/dopaste.png",
-  },
-  {
-    title: "Dribbble Clone",
-    desc: "A dribbble clone website where you can share your designs.",
-    img: "/images/dribbble.png",
-  },
-  {
-    title: "Admin Dashboard",
-    desc: "A admin dashboard for developer think website to manage blogs.",
-    img: "/images/admin.png",
-  },
-  {
-    title: "E-commerce",
-    desc: "An e-commerce website frontend to sell products.",
-    img: "/images/ecommerce.png",
-  },
-];
+import { useHomeData } from "@/hooks/useHomeData";
 
 export default function Home() {
   const [chatOpen, setChatOpen] = useState(false);
+  const { data: homeData, isLoading, error } = useHomeData();
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#161616] text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-white text-lg">Loading portfolio...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#161616] text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center justify-center">
+        <div className="text-center max-w-md mx-auto">
+          <div className="bg-red-600/20 border border-red-600/50 rounded-lg p-6">
+            <h2 className="text-red-400 text-lg font-semibold mb-2">Error Loading Portfolio</h2>
+            <p className="text-red-300 mb-4">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Fallback data if no data is loaded
+  const skills = homeData?.skills || [];
+  const blogs = homeData?.blogs || [];
+  const projects = homeData?.projects || [];
 
   return (
     <div className="min-h-screen bg-[#161616] text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center">
       {/* Header */}
-      <Header onChatOpen={() => setChatOpen(true)} />
+      <Header onChatOpen={() => setChatOpen(true)} profile={homeData?.profile} />
 
       {/* Skills and Connect */}
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
         <SkillsCard skills={skills} />
-        <ConnectCard />
+        <ConnectCard profile={homeData?.profile} />
       </div>
 
       {/* Blogs */}
       <BlogsSection blogs={blogs} />
 
       {/* Work Experience */}
-      <WorkExperience />
+      <WorkExperience workExperience={homeData?.workExperience} />
 
       {/* Projects */}
       <ProjectsSection projects={projects} />

@@ -4,14 +4,14 @@ import { useUser } from '@clerk/nextjs';
 import { useState } from 'react';
 import { useAdmin } from '@/contexts/AdminContext';
 import DashboardOverview from './DashboardOverview';
-import BlogsManagement from './BlogsManagement';
-import ProjectsManagement from './ProjectsManagement';
-import SkillsManagement from './SkillsManagement';
-import WorkExperienceManagement from './WorkExperienceManagement';
-import ProfileManagement from './ProfileManagement';
-import AnalyticsManagement from './AnalyticsManagement';
-import ChatManagement from './ChatManagement';
-import AdminActivitiesManagement from './AdminActivitiesManagement';
+import BlogsManagement from './admin-management/BlogsManagement';
+import ProjectsManagement from './admin-management/ProjectsManagement';
+import SkillsManagement from './admin-management/SkillsManagement';
+import WorkExperienceManagement from './admin-management/WorkExperienceManagement';
+import ProfileManagement from './admin-management/ProfileManagement';
+import AnalyticsManagement from './admin-management/AnalyticsManagement';
+import ChatManagement from './admin-management/ChatManagement';
+import AdminActivitiesManagement from './admin-management/AdminActivitiesManagement';
 
 interface AdminPanelProps {
   onClose: () => void;

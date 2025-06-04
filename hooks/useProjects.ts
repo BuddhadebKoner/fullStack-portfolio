@@ -7,10 +7,10 @@ export interface ProjectData {
   technologies: string[];
   githubUrl?: string;
   liveUrl?: string;
-  imageUrl?: string;
+  img: string; // Changed from imageUrl to img to match model
   category: string;
   order: number;
-  isFeatured: boolean;
+  featured: boolean; // Changed from isFeatured to featured to match model
   isPublished: boolean;
   createdAt: string;
   updatedAt: string;
@@ -34,6 +34,9 @@ interface UseProjectsReturn {
   error: string | null;
   fetchProjects: () => Promise<void>;
   refreshProjects: () => Promise<void>;
+  createProject: (projectData: Partial<ProjectData>) => Promise<boolean>;
+  updateProject: (id: string, projectData: Partial<ProjectData>) => Promise<boolean>;
+  deleteProject: (id: string) => Promise<boolean>;
 }
 
 export function useProjects(): UseProjectsReturn {
@@ -66,6 +69,86 @@ export function useProjects(): UseProjectsReturn {
     await fetchProjects();
   };
 
+  const createProject = async (projectData: Partial<ProjectData>): Promise<boolean> => {
+    try {
+      setError(null);
+      
+      const response = await fetch('/api/projects', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(projectData),
+      });
+
+      const result: ProjectApiResponse = await response.json();
+
+      if (result.success) {
+        await refreshProjects(); // Refresh the list after creating
+        return true;
+      } else {
+        setError(result.error || 'Failed to create project');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error creating project:', error);
+      setError(error instanceof Error ? error.message : 'Failed to create project');
+      return false;
+    }
+  };
+
+  const updateProject = async (id: string, projectData: Partial<ProjectData>): Promise<boolean> => {
+    try {
+      setError(null);
+      
+      const response = await fetch(`/api/projects/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(projectData),
+      });
+
+      const result: ProjectApiResponse = await response.json();
+
+      if (result.success) {
+        await refreshProjects(); // Refresh the list after updating
+        return true;
+      } else {
+        setError(result.error || 'Failed to update project');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error updating project:', error);
+      setError(error instanceof Error ? error.message : 'Failed to update project');
+      return false;
+    }
+  };
+
+  const deleteProject = async (id: string): Promise<boolean> => {
+    try {
+      setError(null);
+      
+      const response = await fetch(`/api/projects/${id}`, {
+        method: 'DELETE',
+      });
+
+      const result: ProjectApiResponse = await response.json();
+
+      if (result.success) {
+        await refreshProjects(); // Refresh the list after deleting
+        return true;
+      } else {
+        setError(result.error || 'Failed to delete project');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      setError(error instanceof Error ? error.message : 'Failed to delete project');
+      return false;
+    }
+  };
+
   useEffect(() => {
     fetchProjects();
   }, []);
@@ -76,5 +159,8 @@ export function useProjects(): UseProjectsReturn {
     error,
     fetchProjects,
     refreshProjects,
+    createProject,
+    updateProject,
+    deleteProject,
   };
 }
