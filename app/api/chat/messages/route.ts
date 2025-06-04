@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import ChatMessage from '@/models/chatMessage.model';
-import { auth } from '@clerk/nextjs/server';
 
 // GET /api/chat/messages - Get chat messages for a session
 export async function GET(request: NextRequest) {
@@ -44,8 +43,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-  } catch (error: any) {
-    console.error('Error fetching chat messages:', error);
+  } catch {
     return NextResponse.json(
       { success: false, error: 'Failed to fetch chat messages' },
       { status: 500 }
@@ -59,7 +57,7 @@ export async function POST(request: NextRequest) {
     await connectToDatabase();
 
     const body = await request.json();
-    const { 
+    const {
       sessionId,
       sender = 'user',
       message,
@@ -76,9 +74,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Get IP address from headers for user info
-    const ipAddress = request.headers.get('x-forwarded-for') || 
-                     request.headers.get('x-real-ip') || 
-                     'unknown';
+    const ipAddress = request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
 
     // Add IP to metadata if it's a user message
     if (sender === 'user' && metadata.userInfo) {
@@ -101,8 +99,7 @@ export async function POST(request: NextRequest) {
       message: 'Message sent successfully'
     }, { status: 201 });
 
-  } catch (error: any) {
-    console.error('Error sending chat message:', error);
+  } catch {
     return NextResponse.json(
       { success: false, error: 'Failed to send message' },
       { status: 500 }

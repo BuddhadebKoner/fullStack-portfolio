@@ -13,7 +13,7 @@ export default function ConnectCard({ profile }: ConnectCardProps) {
 
   return (
     <div className="bg-[#232323] rounded-xl p-5 flex flex-col gap-3">
-      <h3 className="text-lg font-semibold mb-1">Let's connect</h3>
+      <h3 className="text-lg font-semibold mb-1">Let&apos;s connect</h3>
       <div className="flex gap-3 text-xl mb-2">
         {socialLinks?.github && (
           <a

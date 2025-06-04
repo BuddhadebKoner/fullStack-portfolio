@@ -2,6 +2,7 @@
 
 import { useProfile } from '@/hooks/useProfile';
 import { useState } from 'react';
+import Image from 'next/image';
 import ProfileForm from '../ProfileForm';
 import { ProfileFormData } from '@/types/profile';
 
@@ -90,7 +91,13 @@ export default function ProfileManagement({ onRefresh }: ProfileManagementProps)
                 <div className="flex items-start gap-6">
                   <div className="w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
                     {profile.avatar ? (
-                      <img src={profile.avatar} alt="Profile" className="w-full h-full rounded-full object-cover" />
+                      <Image 
+                        src={profile.avatar} 
+                        alt="Profile" 
+                        width={80}
+                        height={80}
+                        className="w-full h-full rounded-full object-cover" 
+                      />
                     ) : (
                       <span className="text-white text-2xl font-bold">
                         {profile.firstName?.[0] || 'U'}
@@ -178,9 +185,9 @@ export default function ProfileManagement({ onRefresh }: ProfileManagementProps)
           ) : isCreating ? (
             <div className="text-center py-8">
               <div className="bg-[#262626] rounded-lg p-8 border border-[#404040]">
-                <h4 className="text-white text-xl font-semibold mb-4">Welcome! Let's create your profile</h4>
+                <h4 className="text-white text-xl font-semibold mb-4">Welcome! Let&apos;s create your profile</h4>
                 <p className="text-[#a0a0a0] mb-6">
-                  You haven't created your profile yet. Click the "Create Profile" button above to get started.
+                  You haven&apos;t created your profile yet. Click the &quot;Create Profile&quot; button above to get started.
                 </p>
                 <button 
                   onClick={() => setShowProfileForm(true)}

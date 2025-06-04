@@ -6,13 +6,15 @@ import { auth } from '@clerk/nextjs/server';
 // GET /api/blogs/[id] - Get single blog by ID or slug
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectToDatabase();
 
-    const { id } = params;
-    
+    const { params } = context;
+    const resolvedParams = await params;
+    const { id } = resolvedParams;
+
     // Try to find by ID first, then by slug
     let blog = await Blog.findById(id);
     if (!blog) {
@@ -35,8 +37,7 @@ export async function GET(
       data: blog
     });
 
-  } catch (error: any) {
-    console.error('Error fetching blog:', error);
+  } catch {
     return NextResponse.json(
       { success: false, error: 'Failed to fetch blog' },
       { status: 500 }
@@ -47,7 +48,8 @@ export async function GET(
 // PUT /api/blogs/[id] - Update blog
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
+
 ) {
   try {
     const { userId } = await auth();
@@ -60,7 +62,10 @@ export async function PUT(
 
     await connectToDatabase();
 
-    const { id } = params;
+    const { params } = context;
+    const resolvedParams = await params;
+    const { id } = resolvedParams;
+
     const body = await request.json();
     const { title, desc, content, tags, imageUrl, isPublished } = body;
 
@@ -78,7 +83,7 @@ export async function PUT(
         .toLowerCase()
         .replace(/[^a-zA-Z0-9 ]/g, '')
         .replace(/\s+/g, '-');
-      
+
       // Check if new slug already exists
       const existingBlog = await Blog.findOne({ slug: newSlug, _id: { $ne: id } });
       if (existingBlog) {
@@ -106,8 +111,7 @@ export async function PUT(
       message: 'Blog updated successfully'
     });
 
-  } catch (error: any) {
-    console.error('Error updating blog:', error);
+  } catch {
     return NextResponse.json(
       { success: false, error: 'Failed to update blog' },
       { status: 500 }
@@ -118,7 +122,7 @@ export async function PUT(
 // DELETE /api/blogs/[id] - Delete blog
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -131,8 +135,10 @@ export async function DELETE(
 
     await connectToDatabase();
 
-    const { id } = params;
-    
+    const { params } = context;
+    const resolvedParams = await params;
+    const { id } = resolvedParams;
+
     const blog = await Blog.findByIdAndDelete(id);
     if (!blog) {
       return NextResponse.json(
@@ -146,8 +152,7 @@ export async function DELETE(
       message: 'Blog deleted successfully'
     });
 
-  } catch (error: any) {
-    console.error('Error deleting blog:', error);
+  } catch {
     return NextResponse.json(
       { success: false, error: 'Failed to delete blog' },
       { status: 500 }

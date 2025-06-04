@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 interface WorkExperienceData {
   company: string;
   position: string;
@@ -47,10 +49,12 @@ export default function WorkExperience({ workExperience = [] }: WorkExperiencePr
             <div className="flex items-center gap-3">
               <div className="bg-white rounded-full w-10 h-10 flex items-center justify-center mr-2">
                 {experience.companyLogo ? (
-                  <img 
+                  <Image 
                     src={experience.companyLogo} 
                     alt={`${experience.company} logo`} 
-                    className="w-8 h-8 object-contain" 
+                    width={32}
+                    height={32}
+                    className="w-8 h-8 object-contain rounded-full" 
                   />
                 ) : (
                   <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">

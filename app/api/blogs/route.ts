@@ -3,6 +3,16 @@ import { connectToDatabase } from '@/lib/db';
 import Blog from '@/models/blog.model';
 import { auth } from '@clerk/nextjs/server';
 
+// Define interface for blog query
+interface BlogQuery {
+  isPublished?: boolean;
+  $or?: Array<{
+    title?: { $regex: string; $options: string };
+    desc?: { $regex: string; $options: string };
+  }>;
+  tags?: { $in: string[] };
+}
+
 // GET /api/blogs - Get all blogs with pagination and filtering
 export async function GET(request: NextRequest) {
   try {
@@ -17,19 +27,19 @@ export async function GET(request: NextRequest) {
     const sort = searchParams.get('sort') || '-createdAt';
 
     // Build query
-    const query: any = {};
-    
+    const query: BlogQuery = {};
+
     if (published !== null) {
       query.isPublished = published === 'true';
     }
-    
+
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: 'i' } },
         { desc: { $regex: search, $options: 'i' } }
       ];
     }
-    
+
     if (tags) {
       const tagArray = tags.split(',').map(tag => tag.trim());
       query.tags = { $in: tagArray };
@@ -59,8 +69,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-  } catch (error: any) {
-    console.error('Error fetching blogs:', error);
+  } catch {
     return NextResponse.json(
       { success: false, error: 'Failed to fetch blogs' },
       { status: 500 }
@@ -126,8 +135,7 @@ export async function POST(request: NextRequest) {
       message: 'Blog created successfully'
     }, { status: 201 });
 
-  } catch (error: any) {
-    console.error('Error creating blog:', error);
+  } catch {
     return NextResponse.json(
       { success: false, error: 'Failed to create blog' },
       { status: 500 }

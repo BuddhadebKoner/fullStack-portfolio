@@ -58,8 +58,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-  } catch (error: any) {
-    console.error('Error fetching chat sessions:', error);
+  } catch {
     return NextResponse.json(
       { success: false, error: 'Failed to fetch chat sessions' },
       { status: 500 }

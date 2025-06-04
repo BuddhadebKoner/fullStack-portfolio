@@ -1,18 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import Project from '@/models/project.model';
-import { auth, currentUser } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
 
 // GET /api/projects/[id] - Get single project by ID
 export async function GET(
    request: NextRequest,
-   { params }: { params: { id: string } }
+   context: { params: Promise<{ id: string }> }
 ) {
    try {
       await connectToDatabase();
-      const { userId } = await auth();
 
-      const { id } = params;
+      const { params } = context;
+      const resolvedParams = await params;
+      const { id } = resolvedParams;
 
       const project = await Project.findById(id);
       if (!project) {
@@ -27,8 +28,7 @@ export async function GET(
          data: project
       });
 
-   } catch (error: any) {
-      console.error('Error fetching project:', error);
+   } catch {
       return NextResponse.json(
          { success: false, error: 'Failed to fetch project' },
          { status: 500 }
@@ -39,7 +39,7 @@ export async function GET(
 // PUT /api/projects/[id] - Update project
 export async function PUT(
    request: NextRequest,
-   { params }: { params: { id: string } }
+   context: { params: Promise<{ id: string }> }
 ) {
    try {
       const { userId } = await auth();
@@ -52,7 +52,10 @@ export async function PUT(
 
       await connectToDatabase();
 
-      const { id } = params;
+      const { params } = context;
+      const resolvedParams = await params;
+      const { id } = resolvedParams;
+
       const body = await request.json();
 
       const project = await Project.findByIdAndUpdate(
@@ -74,8 +77,7 @@ export async function PUT(
          message: 'Project updated successfully'
       });
 
-   } catch (error: any) {
-      console.error('Error updating project:', error);
+   } catch {
       return NextResponse.json(
          { success: false, error: 'Failed to update project' },
          { status: 500 }
@@ -86,7 +88,7 @@ export async function PUT(
 // DELETE /api/projects/[id] - Delete project
 export async function DELETE(
    request: NextRequest,
-   { params }: { params: { id: string } }
+   context: { params: Promise<{ id: string }> }
 ) {
    try {
       const { userId } = await auth();
@@ -99,7 +101,9 @@ export async function DELETE(
 
       await connectToDatabase();
 
-      const { id } = params;
+      const { params } = context;
+      const resolvedParams = await params;
+      const { id } = resolvedParams;
 
       const project = await Project.findByIdAndDelete(id);
       if (!project) {
@@ -114,8 +118,7 @@ export async function DELETE(
          message: 'Project deleted successfully'
       });
 
-   } catch (error: any) {
-      console.error('Error deleting project:', error);
+   } catch {
       return NextResponse.json(
          { success: false, error: 'Failed to delete project' },
          { status: 500 }

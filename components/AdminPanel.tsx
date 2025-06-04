@@ -34,7 +34,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
               </svg>
             </div>
             <h3 className="text-white text-xl font-semibold mb-2">Access Denied</h3>
-            <p className="text-[#a0a0a0] mb-6">You don't have admin privileges to access this panel.</p>
+            <p className="text-[#a0a0a0] mb-6">You don&apos;t have admin privileges to access this panel.</p>
             <button
               onClick={onClose}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"

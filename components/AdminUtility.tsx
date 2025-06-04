@@ -28,7 +28,7 @@ export function AdminUtility() {
     
     try {
       const newMetadata = { ...user.unsafeMetadata };
-      delete (newMetadata as any).role;
+      delete (newMetadata as Record<string, unknown>).role;
       
       await user.update({
         unsafeMetadata: newMetadata

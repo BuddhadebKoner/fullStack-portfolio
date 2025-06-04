@@ -3,6 +3,23 @@ import { connectToDatabase } from '@/lib/db';
 import AdminActivity from '@/models/adminActivity.model';
 import { auth } from '@clerk/nextjs/server';
 
+// Define types for the query and activity data
+interface ActivityQuery {
+  actionType?: string;
+  resourceType?: string;
+  userId?: string;
+}
+
+interface ActivityBody {
+  userEmail: string;
+  action: string;
+  actionType: string;
+  resourceType: string;
+  resourceId?: string;
+  details?: string;
+  metadata?: Record<string, unknown>;
+}
+
 // GET /api/admin/activities - Get admin activities
 export async function GET(request: NextRequest) {
   try {
@@ -24,7 +41,7 @@ export async function GET(request: NextRequest) {
     const userId_filter = searchParams.get('userId');
 
     // Build query
-    const query: any = {};
+    const query: ActivityQuery = {};
     
     if (actionType) {
       query.actionType = actionType;
@@ -62,7 +79,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching admin activities:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to fetch admin activities' },
@@ -84,7 +101,7 @@ export async function POST(request: NextRequest) {
 
     await connectToDatabase();
 
-    const body = await request.json();
+    const body: ActivityBody = await request.json();
     const { 
       userEmail,
       action,
@@ -122,7 +139,7 @@ export async function POST(request: NextRequest) {
       message: 'Activity logged successfully'
     }, { status: 201 });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error logging admin activity:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to log activity' },

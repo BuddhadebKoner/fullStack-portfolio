@@ -6,12 +6,14 @@ import { auth } from '@clerk/nextjs/server';
 // GET /api/work-experience/[id] - Get single work experience by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectToDatabase();
 
-    const { id } = params;
+    const { params } = context;
+    const resolvedParams = await params;
+    const { id } = resolvedParams;
     
     const experience = await WorkExperience.findById(id);
     if (!experience) {
@@ -26,8 +28,7 @@ export async function GET(
       data: experience
     });
 
-  } catch (error: any) {
-    console.error('Error fetching work experience:', error);
+  } catch {
     return NextResponse.json(
       { success: false, error: 'Failed to fetch work experience' },
       { status: 500 }
@@ -38,7 +39,7 @@ export async function GET(
 // PUT /api/work-experience/[id] - Update work experience
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -51,7 +52,9 @@ export async function PUT(
 
     await connectToDatabase();
 
-    const { id } = params;
+    const { params } = context;
+    const resolvedParams = await params;
+    const { id } = resolvedParams;
     const body = await request.json();
 
     // If setting as current position, set all other positions to not current
@@ -89,8 +92,7 @@ export async function PUT(
       message: 'Work experience updated successfully'
     });
 
-  } catch (error: any) {
-    console.error('Error updating work experience:', error);
+  } catch {
     return NextResponse.json(
       { success: false, error: 'Failed to update work experience' },
       { status: 500 }
@@ -101,7 +103,7 @@ export async function PUT(
 // DELETE /api/work-experience/[id] - Delete work experience
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -114,7 +116,9 @@ export async function DELETE(
 
     await connectToDatabase();
 
-    const { id } = params;
+    const { params } = context;
+    const resolvedParams = await params;
+    const { id } = resolvedParams;
     
     const experience = await WorkExperience.findByIdAndDelete(id);
     if (!experience) {
@@ -129,8 +133,7 @@ export async function DELETE(
       message: 'Work experience deleted successfully'
     });
 
-  } catch (error: any) {
-    console.error('Error deleting work experience:', error);
+  } catch {
     return NextResponse.json(
       { success: false, error: 'Failed to delete work experience' },
       { status: 500 }

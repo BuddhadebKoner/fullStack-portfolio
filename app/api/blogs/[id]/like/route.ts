@@ -5,13 +5,15 @@ import Blog from '@/models/blog.model';
 // GET /api/blogs/[id]/like - Like/Unlike blog
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectToDatabase();
 
-    const { id } = params;
-    
+    const { params } = context;
+    const resolvedParams = await params;
+    const { id } = resolvedParams;
+
     const blog = await Blog.findById(id);
     if (!blog) {
       return NextResponse.json(
@@ -30,8 +32,7 @@ export async function POST(
       message: 'Blog liked successfully'
     });
 
-  } catch (error: any) {
-    console.error('Error liking blog:', error);
+  } catch {
     return NextResponse.json(
       { success: false, error: 'Failed to like blog' },
       { status: 500 }

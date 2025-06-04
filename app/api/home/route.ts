@@ -1,6 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
-import { Profile, Blog, Project, Skill, WorkExperience, type IProfile, type IBlog, type IProject, type ISkill, type IWorkExperience } from '@/models';
+import { Profile, Blog, Project, Skill, WorkExperience } from '@/models';
+
+interface BlogData {
+   title: string;
+   desc: string;
+   slug: string;
+   views: number;
+   likes: number;
+   createdAt: Date;
+}
+
+interface ProjectData {
+   title: string;
+   desc: string;
+   img: string;
+   technologies: string[];
+   githubUrl: string;
+   liveUrl: string;
+   category: string;
+   featured: boolean;
+}
+
+interface WorkExperienceData {
+   company: string;
+   position: string;
+   companyLogo: string;
+   startDate: Date;
+   endDate: Date | null;
+   isCurrent: boolean;
+   description: string;
+   technologies: string[];
+}
+
+// Define MongoDB document interface
+interface MongoProfile {
+   firstName?: string;
+   lastName?: string;
+   bio?: string;
+   avatar?: string;
+   socialLinks?: Record<string, string>;
+   city?: string;
+   country?: string;
+   email?: string;
+   [key: string]: unknown;
+}
 
 // GET /api/home - Get all home page data
 export async function GET(request: NextRequest) {
@@ -20,8 +64,8 @@ export async function GET(request: NextRequest) {
       ] = await Promise.all([
          // Get public profile
          Profile.findOne({ isPublic: true })
-            .select('-userId')
-            .lean(),
+            .select('firstName lastName bio avatar socialLinks city country email')
+            .lean() as Promise<MongoProfile | null>,
 
          // Get published blogs (limited)
          Blog.find({ isPublished: true })
@@ -53,7 +97,7 @@ export async function GET(request: NextRequest) {
       const skillNames = visibleSkills.map(skill => skill.name);
 
       // Transform blogs data to match the expected format
-      const blogsData = publishedBlogs.map(blog => ({
+      const blogsData: BlogData[] = publishedBlogs.map(blog => ({
          title: blog.title,
          desc: blog.desc,
          slug: blog.slug,
@@ -63,7 +107,7 @@ export async function GET(request: NextRequest) {
       }));
 
       // Transform projects data to match the expected format
-      const projectsData = publishedProjects.map(project => ({
+      const projectsData: ProjectData[] = publishedProjects.map(project => ({
          title: project.title,
          desc: project.desc,
          img: project.img,
@@ -75,7 +119,7 @@ export async function GET(request: NextRequest) {
       }));
 
       // Transform work experience data
-      const workExperienceData = visibleWorkExperience.map(exp => ({
+      const workExperienceData: WorkExperienceData[] = visibleWorkExperience.map(exp => ({
          company: exp.company,
          position: exp.position,
          companyLogo: exp.companyLogo,
@@ -88,14 +132,14 @@ export async function GET(request: NextRequest) {
 
       const responseData = {
          profile: publicProfile ? {
-            firstName: (publicProfile as any).firstName,
-            lastName: (publicProfile as any).lastName,
-            bio: (publicProfile as any).bio,
-            avatar: (publicProfile as any).avatar,
-            socialLinks: (publicProfile as any).socialLinks,
-            city: (publicProfile as any).city,
-            country: (publicProfile as any).country,
-            email: (publicProfile as any).email,
+            firstName: publicProfile.firstName || '',
+            lastName: publicProfile.lastName || '',
+            bio: publicProfile.bio || '',
+            avatar: publicProfile.avatar || '',
+            socialLinks: publicProfile.socialLinks || {},
+            city: publicProfile.city || '',
+            country: publicProfile.country || '',
+            email: publicProfile.email || '',
          } : null,
          skills: skillNames,
          blogs: blogsData,
@@ -114,7 +158,7 @@ export async function GET(request: NextRequest) {
          data: responseData
       });
 
-   } catch (error: any) {
+   } catch (error: unknown) {
       console.error('Error fetching home page data:', error);
       return NextResponse.json(
          { success: false, error: 'Failed to fetch home page data' },

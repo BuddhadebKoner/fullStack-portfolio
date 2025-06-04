@@ -3,6 +3,32 @@ import { connectToDatabase } from '@/lib/db';
 import Analytics from '@/models/analytics.model';
 import { auth } from '@clerk/nextjs/server';
 
+// Define types for analytics data
+interface AnalyticsQuery {
+  date?: {
+    $gte: Date;
+    $lte?: Date;
+  };
+}
+
+interface AnalyticsBody {
+  date?: string;
+  pageViews?: number;
+  uniqueVisitors?: number;
+  totalUsers?: number;
+  newUsers?: number;
+  blogViews?: number;
+  projectViews?: number;
+  topPages?: string[];
+  referrers?: string[];
+  devices?: {
+    mobile: number;
+    desktop: number;
+    tablet: number;
+  };
+  countries?: string[];
+}
+
 // GET /api/analytics - Get analytics data
 export async function GET(request: NextRequest) {
   try {
@@ -22,7 +48,7 @@ export async function GET(request: NextRequest) {
     const period = searchParams.get('period') || '30'; // days
     const aggregate = searchParams.get('aggregate') === 'true';
 
-    let query: any = {};
+    const query: AnalyticsQuery = {};
     
     if (startDate && endDate) {
       query.date = {
@@ -76,7 +102,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching analytics:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to fetch analytics' },
@@ -90,7 +116,7 @@ export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
 
-    const body = await request.json();
+    const body: AnalyticsBody = await request.json();
     const { 
       date = new Date().toISOString().split('T')[0],
       pageViews = 0,
@@ -139,7 +165,7 @@ export async function POST(request: NextRequest) {
       message: 'Analytics recorded successfully'
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error recording analytics:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to record analytics' },

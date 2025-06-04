@@ -14,7 +14,10 @@ export async function GET(request: NextRequest) {
       const sort = searchParams.get('sort') || 'order';
 
       // Build query
-      const query: any = {};
+      const query: {
+         category?: string;
+         isVisible?: boolean;
+      } = {};
 
       if (category) {
          query.category = category;
@@ -34,8 +37,8 @@ export async function GET(request: NextRequest) {
          data: skills
       });
 
-   } catch (error: any) {
-      console.error('Error fetching skills:', error);
+   } catch{
+
       return NextResponse.json(
          { success: false, error: 'Failed to fetch skills' },
          { status: 500 }
@@ -98,8 +101,7 @@ export async function POST(request: NextRequest) {
          message: 'Skill created successfully'
       }, { status: 201 });
 
-   } catch (error: any) {
-      console.error('Error creating skill:', error);
+   } catch {
       return NextResponse.json(
          { success: false, error: 'Failed to create skill' },
          { status: 500 }
@@ -131,7 +133,7 @@ export async function PUT(request: NextRequest) {
       }
 
       // Update each skill's order
-      const updatePromises = skills.map((skill: any) =>
+      const updatePromises = skills.map((skill: { id: string; order: number }) =>
          Skill.findByIdAndUpdate(skill.id, { order: skill.order })
       );
 
@@ -142,8 +144,8 @@ export async function PUT(request: NextRequest) {
          message: 'Skills order updated successfully'
       });
 
-   } catch (error: any) {
-      console.error('Error updating skills order:', error);
+   } catch  {
+
       return NextResponse.json(
          { success: false, error: 'Failed to update skills order' },
          { status: 500 }

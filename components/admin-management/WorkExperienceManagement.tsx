@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useWorkExperience, WorkExperienceData } from '@/hooks/useWorkExperience';
 
 interface WorkExperienceManagementProps {
@@ -418,9 +419,11 @@ export default function WorkExperienceManagement({ onRefresh }: WorkExperienceMa
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       {experience.companyLogo && (
-                        <img 
+                        <Image 
                           src={experience.companyLogo} 
                           alt={`${experience.company} logo`}
+                          width={24}
+                          height={24}
                           className="w-6 h-6 rounded object-cover"
                         />
                       )}

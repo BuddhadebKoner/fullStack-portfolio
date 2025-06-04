@@ -13,7 +13,9 @@ export async function GET(request: NextRequest) {
     const sort = searchParams.get('sort') || '-startDate';
 
     // Build query
-    const query: any = {};
+    const query: {
+      isVisible?: boolean;
+    } = {};
     
     if (visible !== null) {
       query.isVisible = visible !== 'false';
@@ -29,8 +31,7 @@ export async function GET(request: NextRequest) {
       data: experiences
     });
 
-  } catch (error: any) {
-    console.error('Error fetching work experiences:', error);
+  } catch{
     return NextResponse.json(
       { success: false, error: 'Failed to fetch work experiences' },
       { status: 500 }
@@ -102,8 +103,7 @@ export async function POST(request: NextRequest) {
       message: 'Work experience created successfully'
     }, { status: 201 });
 
-  } catch (error: any) {
-    console.error('Error creating work experience:', error);
+  } catch  {
     return NextResponse.json(
       { success: false, error: 'Failed to create work experience' },
       { status: 500 }

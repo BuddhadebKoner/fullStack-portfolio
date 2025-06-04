@@ -18,7 +18,16 @@ export async function GET(request: NextRequest) {
     const sort = searchParams.get('sort') || 'order';
 
     // Build query
-    const query: any = {};
+    const query: {
+      isPublished?: boolean;
+      category?: string;
+      featured?: boolean;
+      $or?: Array<{
+        title?: { $regex: string; $options: string };
+        desc?: { $regex: string; $options: string };
+        technologies?: { $in: RegExp[] };
+      }>;
+    } = {};
     
     if (published !== null) {
       query.isPublished = published !== 'false';
@@ -64,8 +73,8 @@ export async function GET(request: NextRequest) {
       }
     });
 
-  } catch (error: any) {
-    console.error('Error fetching projects:', error);
+  } catch {
+
     return NextResponse.json(
       { success: false, error: 'Failed to fetch projects' },
       { status: 500 }
@@ -129,8 +138,8 @@ export async function POST(request: NextRequest) {
       message: 'Project created successfully'
     }, { status: 201 });
 
-  } catch (error: any) {
-    console.error('Error creating project:', error);
+  } catch  {
+ 
     return NextResponse.json(
       { success: false, error: 'Failed to create project' },
       { status: 500 }

@@ -6,6 +6,11 @@ interface AnalyticsManagementProps {
   onRefresh?: () => void;
 }
 
+interface TopPage {
+  page: string;
+  views: number;
+}
+
 export default function AnalyticsManagement({ onRefresh }: AnalyticsManagementProps) {
   const { analytics, isLoading, error, refreshAnalytics } = useAnalytics();
 
@@ -150,7 +155,7 @@ export default function AnalyticsManagement({ onRefresh }: AnalyticsManagementPr
             <div className="bg-[#262626] rounded-lg p-6 border border-[#404040]">
               <h4 className="text-white text-lg font-semibold mb-4">Top Pages</h4>
               <div className="space-y-2">
-                {analytics.topPages.slice(0, 5).map((page: any, index: number) => (
+                {analytics.topPages.slice(0, 5).map((page: TopPage, index: number) => (
                   <div key={index} className="flex justify-between py-2 border-b border-[#404040] last:border-b-0">
                     <span className="text-[#a0a0a0]">{page.page}</span>
                     <span className="text-white">{page.views} views</span>

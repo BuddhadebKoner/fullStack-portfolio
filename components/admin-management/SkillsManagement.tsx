@@ -288,7 +288,7 @@ export default function SkillsManagement({ onRefresh }: SkillsManagementProps) {
                 <label className="block text-[#a0a0a0] text-sm mb-2">Level</label>
                 <select
                   value={formData.level}
-                  onChange={(e) => setFormData({ ...formData, level: e.target.value as any })}
+                  onChange={(e) => setFormData({ ...formData, level: e.target.value as 'beginner' | 'intermediate' | 'advanced' | 'expert' })}
                   className="w-full bg-[#1a1a1a] border border-[#404040] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
                 >
                   {SKILL_LEVELS.map(level => (
@@ -375,7 +375,7 @@ export default function SkillsManagement({ onRefresh }: SkillsManagementProps) {
                 <label className="block text-[#a0a0a0] text-sm mb-2">Level</label>
                 <select
                   value={formData.level}
-                  onChange={(e) => setFormData({ ...formData, level: e.target.value as any })}
+                  onChange={(e) => setFormData({ ...formData, level: e.target.value as 'beginner' | 'intermediate' | 'advanced' | 'expert' })}
                   className="w-full bg-[#1a1a1a] border border-[#404040] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
                 >
                   {SKILL_LEVELS.map(level => (
@@ -434,7 +434,7 @@ export default function SkillsManagement({ onRefresh }: SkillsManagementProps) {
             <h3 className="text-white text-xl font-semibold mb-4">Delete Skill</h3>
             
             <p className="text-[#a0a0a0] mb-6">
-              Are you sure you want to delete the skill "<span className="text-white font-medium">{selectedSkill.name}</span>"? 
+              Are you sure you want to delete the skill &quot;<span className="text-white font-medium">{selectedSkill.name}</span>&quot;? 
               This action cannot be undone.
             </p>
             

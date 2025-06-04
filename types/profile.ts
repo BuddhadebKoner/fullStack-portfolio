@@ -27,6 +27,7 @@ export interface ProfileData {
     linkedin?: string;
     twitter?: string;
     website?: string;
+    instagram?: string;
   };
 }
 
