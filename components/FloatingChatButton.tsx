@@ -1,19 +1,41 @@
-import { FaPaperPlane } from "react-icons/fa";
+import { FaComments, FaTimes } from "react-icons/fa";
 
 interface FloatingChatButtonProps {
   onClick: () => void;
   isVisible: boolean;
+  isChatOpen: boolean;
 }
 
-export default function FloatingChatButton({ onClick, isVisible }: FloatingChatButtonProps) {
+export default function FloatingChatButton({ onClick, isVisible, isChatOpen }: FloatingChatButtonProps) {
   if (!isVisible) return null;
 
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onClick();
+  };
+
   return (
-    <button
-      className="fixed bottom-6 right-6 bg-[#232323] text-white rounded-lg w-10 h-10 flex items-center justify-center shadow-lg border border-[#232323] hover:bg-[#333] transition z-40"
-      onClick={onClick}
-    >
-      <FaPaperPlane />
-    </button>
+    <div className="fixed bottom-6 right-6 z-40">
+      <button
+        className={`bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 relative ${
+          isChatOpen ? 'rotate-180' : ''
+        }`}
+        onClick={handleClick}
+        title={isChatOpen ? "Close chat" : "Chat with Buddhadeb"}
+        type="button"
+      >
+        {isChatOpen ? (
+          <FaTimes className="text-xl" />
+        ) : (
+          <FaComments className="text-xl" />
+        )}
+      </button>
+      
+      {/* Pulse effect when chat is closed */}
+      {!isChatOpen && (
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full animate-ping opacity-25 pointer-events-none"></div>
+      )}
+    </div>
   );
 }

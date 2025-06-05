@@ -16,6 +16,21 @@ export default function Home() {
   const [chatOpen, setChatOpen] = useState(false);
   const { data: homeData, isLoading, error } = useHomeData();
 
+  // Handle chat toggle
+  const handleChatToggle = () => {
+    setChatOpen((prev) => !prev);
+  };
+
+  // Handle chat open from header
+  const handleChatOpen = () => {
+    setChatOpen(true);
+  };
+
+  // Handle chat close
+  const handleChatClose = () => {
+    setChatOpen(false);
+  };
+
   // Show loading state
   if (isLoading) {
     return (
@@ -34,7 +49,9 @@ export default function Home() {
       <div className="min-h-screen bg-[#161616] text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center justify-center">
         <div className="text-center max-w-md mx-auto">
           <div className="bg-red-600/20 border border-red-600/50 rounded-lg p-6">
-            <h2 className="text-red-400 text-lg font-semibold mb-2">Error Loading Portfolio</h2>
+            <h2 className="text-red-400 text-lg font-semibold mb-2">
+              Error Loading Portfolio
+            </h2>
             <p className="text-red-300 mb-4">{error}</p>
             <button
               onClick={() => window.location.reload()}
@@ -56,7 +73,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#161616] text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center">
       {/* Header */}
-      <Header onChatOpen={() => setChatOpen(true)} profile={homeData?.profile} />
+      <Header onChatOpen={handleChatOpen} profile={homeData?.profile} />
 
       {/* Skills and Connect */}
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
@@ -77,12 +94,13 @@ export default function Home() {
       <Footer />
 
       {/* Chat Popup UI */}
-      <ChatPopup isOpen={chatOpen} onClose={() => setChatOpen(false)} />
+      <ChatPopup isOpen={chatOpen} onClose={handleChatClose} />
 
       {/* Floating Chat Button */}
-      <FloatingChatButton 
-        onClick={() => setChatOpen(true)} 
-        isVisible={!chatOpen} 
+      <FloatingChatButton
+        onClick={handleChatToggle}
+        isVisible={true}
+        isChatOpen={chatOpen}
       />
     </div>
   );
