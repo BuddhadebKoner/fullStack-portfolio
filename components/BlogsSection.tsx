@@ -1,15 +1,26 @@
+import React, { useState } from "react";
 import BlogCard from "./BlogCard";
-
-interface Blog {
-  title: string;
-  desc: string;
-}
+import BlogDetailsModal from "./BlogDetailsModal";
+import { useBlogs, BlogData } from "../hooks/useBlogs";
 
 interface BlogsSectionProps {
-  blogs: Blog[];
+  blogs: BlogData[];
 }
 
 export default function BlogsSection({ blogs }: BlogsSectionProps) {
+  const { getBlog } = useBlogs();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedBlog, setSelectedBlog] = useState<BlogData | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleCardClick = async (slug: string) => {
+    setLoading(true);
+    setModalOpen(true);
+    const blog = await getBlog(slug);
+    setSelectedBlog(blog ?? null);
+    setLoading(false);
+  };
+
   return (
     <div className="w-full max-w-5xl mb-10">
       <div className="flex items-center justify-between mb-4">
@@ -28,10 +39,28 @@ export default function BlogsSection({ blogs }: BlogsSectionProps) {
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {blogs.map((blog, idx) => (
-          <BlogCard key={idx} title={blog.title} desc={blog.desc} />
-        ))}
+        {blogs.length > 0 ? (
+          blogs.map((blog, idx) => (
+            <div key={blog.slug || idx} onClick={() => handleCardClick(blog.slug)} className="cursor-pointer">
+              <BlogCard 
+                title={blog.title} 
+                desc={blog.desc}
+                slug={blog.slug}
+                views={blog.views}
+                likes={blog.likes}
+                tags={blog.tags}
+                author={blog.author}
+                createdAt={blog.createdAt}
+              />
+            </div>
+          ))
+        ) : (
+          <div className="col-span-full text-center py-8">
+            <p className="text-[#888] text-lg">No blogs available yet</p>
+          </div>
+        )}
       </div>
+      <BlogDetailsModal isOpen={modalOpen} onClose={() => setModalOpen(false)} blog={selectedBlog} loading={loading} />
     </div>
   );
 }

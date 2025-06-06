@@ -1,6 +1,8 @@
 import { FaTimes, FaPaperPlane, FaRobot, FaUser, FaSpinner } from "react-icons/fa";
 import { useState, useRef, useEffect } from "react";
 import { useSimpleChat } from "@/hooks/useSimpleChat";
+import { useUser } from '@clerk/nextjs';
+import Image from "next/image";
 
 interface ChatPopupProps {
   isOpen: boolean;
@@ -11,6 +13,8 @@ export default function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
   const [inputMessage, setInputMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const { user } = useUser();
 
   const { messages, isLoading, error, sendMessage, clearError } = useSimpleChat();
 
@@ -47,18 +51,18 @@ export default function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
   };
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return date.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
     });
   };
 
   const renderMessageWithLinks = (text: string) => {
     // Regular expression to match URLs
     const urlRegex = /(https?:\/\/[^\s]+)/g;
-    
+
     const parts = text.split(urlRegex);
-    
+
     return parts.map((part, index) => {
       if (urlRegex.test(part)) {
         return (
@@ -103,7 +107,7 @@ export default function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
             <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-sm">
               <div className="flex justify-between items-start">
                 <span>{error}</span>
-                <button 
+                <button
                   onClick={clearError}
                   className="text-red-300 hover:text-white ml-2"
                 >
@@ -116,25 +120,35 @@ export default function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`flex gap-2 ${
-                message.isUser ? 'flex-row-reverse' : 'flex-row'
-              }`}
+              className={`flex gap-2 ${message.isUser ? 'flex-row-reverse' : 'flex-row'
+                }`}
             >
-              <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm ${
-                message.isUser 
-                  ? 'bg-blue-500 text-white' 
-                  : 'bg-green-500 text-white'
-              }`}>
-                {message.isUser ? <FaUser /> : <FaRobot />}
-              </div>
-              <div className={`max-w-[70%] ${
-                message.isUser ? 'text-right' : 'text-left'
-              }`}>
-                <div className={`px-4 py-2 rounded-xl ${
-                  message.isUser
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-[#181818] text-white border border-[#404040]'
+              <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm ${message.isUser
+                ? 'bg-blue-500 text-white'
+                : 'bg-green-500 text-white'
                 }`}>
+                {message.isUser ? (
+                  user?.imageUrl ? (
+                    <Image
+                      src={user.imageUrl}
+                      alt="User"
+                      width={32}
+                      height={32}
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  ) : (
+                    <FaUser />
+                  )
+                ) : (
+                  <FaRobot />
+                )}
+              </div>
+              <div className={`max-w-[70%] ${message.isUser ? 'text-right' : 'text-left'
+                }`}>
+                <div className={`px-4 py-2 rounded-xl ${message.isUser
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-[#181818] text-white border border-[#404040]'
+                  }`}>
                   <div className="text-sm whitespace-pre-wrap">
                     {message.isUser ? message.text : renderMessageWithLinks(message.text)}
                   </div>
@@ -159,7 +173,7 @@ export default function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
               </div>
             </div>
           )}
-          
+
           <div ref={messagesEndRef} />
         </div>
 

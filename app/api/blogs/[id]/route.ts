@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import Blog from '@/models/blog.model';
 import { auth } from '@clerk/nextjs/server';
+import mongoose from 'mongoose';
 
 // GET /api/blogs/[id] - Get single blog by ID or slug
 export async function GET(
@@ -15,8 +16,10 @@ export async function GET(
     const resolvedParams = await params;
     const { id } = resolvedParams;
 
-    // Try to find by ID first, then by slug
-    let blog = await Blog.findById(id);
+    let blog = null;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      blog = await Blog.findById(id);
+    }
     if (!blog) {
       blog = await Blog.findOne({ slug: id });
     }
@@ -37,7 +40,8 @@ export async function GET(
       data: blog
     });
 
-  } catch {
+  } catch (err) {
+    console.error('Blog details API error:', err);
     return NextResponse.json(
       { success: false, error: 'Failed to fetch blog' },
       { status: 500 }

@@ -19,10 +19,17 @@ export interface HomeProfile {
 export interface HomeBlog {
   title: string;
   desc: string;
-  slug?: string;
-  views?: number;
-  likes?: number;
-  createdAt?: string;
+  content?: string;
+  author: string;
+  tags: string[];
+  imageUrl?: string;
+  slug: string;
+  isPublished: boolean;
+  publishedAt?: Date;
+  views: number;
+  likes: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface HomeProject {

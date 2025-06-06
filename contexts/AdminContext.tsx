@@ -18,8 +18,8 @@ export function AdminProvider({ children }: AdminProviderProps) {
   const { user, isLoaded } = useUser();
 
   // Check if user has admin role in metadata
-  const isAdmin = user?.publicMetadata?.role === 'admin' || 
-                  (user?.unsafeMetadata as any)?.role === 'admin';
+  const isAdmin = user?.publicMetadata?.role === 'admin' ||
+    (user?.unsafeMetadata as any)?.role === 'admin';
   const isLoading = !isLoaded;
 
   return (

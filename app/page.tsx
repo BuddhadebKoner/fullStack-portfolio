@@ -65,9 +65,23 @@ export default function Home() {
     );
   }
 
-  // Fallback data if no data is loaded
   const skills = homeData?.skills || [];
-  const blogs = homeData?.blogs || [];
+  const blogs = (homeData?.blogs || []).map((blog) => ({
+    _id: blog.slug,
+    title: blog.title,
+    desc: blog.desc,
+    content: blog.content,
+    author: blog.author,
+    tags: blog.tags,
+    imageUrl: blog.imageUrl,
+    slug: blog.slug,
+    isPublished: blog.isPublished,
+    publishedAt: blog.publishedAt ? String(blog.publishedAt) : undefined,
+    views: blog.views,
+    likes: blog.likes,
+    createdAt: blog.createdAt ? String(blog.createdAt) : '',
+    updatedAt: blog.updatedAt ? String(blog.updatedAt) : '',
+  }));
   const projects = homeData?.projects || [];
 
   return (

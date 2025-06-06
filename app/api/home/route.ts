@@ -33,7 +33,6 @@ interface WorkExperienceData {
    technologies: string[];
 }
 
-// Define MongoDB document interface
 interface MongoProfile {
    firstName?: string;
    lastName?: string;
@@ -46,7 +45,6 @@ interface MongoProfile {
    [key: string]: unknown;
 }
 
-// GET /api/home - Get all home page data
 export async function GET(request: NextRequest) {
    try {
       await connectToDatabase();
@@ -54,7 +52,6 @@ export async function GET(request: NextRequest) {
       const { searchParams } = new URL(request.url);
       const limit = parseInt(searchParams.get('limit') || '10');
 
-      // Fetch all data in parallel for better performance
       const [
          publicProfile,
          publishedBlogs,
@@ -62,72 +59,63 @@ export async function GET(request: NextRequest) {
          visibleSkills,
          visibleWorkExperience
       ] = await Promise.all([
-         // Get public profile
          Profile.findOne({ isPublic: true })
             .select('firstName lastName bio avatar socialLinks city country email')
             .lean() as Promise<MongoProfile | null>,
 
-         // Get published blogs (limited)
          Blog.find({ isPublished: true })
             .select('title desc slug views likes createdAt')
             .sort({ createdAt: -1 })
             .limit(limit)
             .lean(),
 
-         // Get published and featured projects
          Project.find({ isPublished: true })
             .select('title desc img technologies githubUrl liveUrl category featured order')
             .sort({ featured: -1, order: 1, createdAt: -1 })
             .lean(),
 
-         // Get visible skills
          Skill.find({ isVisible: true })
             .select('name category level order')
             .sort({ order: 1, name: 1 })
             .lean(),
 
-         // Get visible work experience
          WorkExperience.find({ isVisible: true })
             .select('company position companyLogo startDate endDate isCurrent description technologies order')
             .sort({ isCurrent: -1, order: 1, startDate: -1 })
             .lean()
       ]);
 
-      // Transform skills data to match the expected format (just names for the skills card)
-      const skillNames = visibleSkills.map(skill => skill.name);
+      const skillNames = (visibleSkills as unknown as Array<{ name: string }>).map(skill => skill.name);
 
-      // Transform blogs data to match the expected format
-      const blogsData: BlogData[] = publishedBlogs.map(blog => ({
-         title: blog.title,
-         desc: blog.desc,
-         slug: blog.slug,
-         views: blog.views || 0,
-         likes: blog.likes || 0,
-         createdAt: blog.createdAt
+      const blogsData: BlogData[] = (publishedBlogs as Array<Partial<BlogData>>).map((blog) => ({
+         title: blog.title ?? '',
+         desc: blog.desc ?? '',
+         slug: blog.slug ?? '',
+         views: blog.views ?? 0,
+         likes: blog.likes ?? 0,
+         createdAt: blog.createdAt ?? new Date(0)
       }));
 
-      // Transform projects data to match the expected format
-      const projectsData: ProjectData[] = publishedProjects.map(project => ({
-         title: project.title,
-         desc: project.desc,
-         img: project.img,
-         technologies: project.technologies || [],
-         githubUrl: project.githubUrl,
-         liveUrl: project.liveUrl,
-         category: project.category,
-         featured: project.featured || false
+      const projectsData: ProjectData[] = (publishedProjects as Array<Partial<ProjectData>>).map((project) => ({
+         title: project.title ?? '',
+         desc: project.desc ?? '',
+         img: project.img ?? '',
+         technologies: project.technologies ?? [],
+         githubUrl: project.githubUrl ?? '',
+         liveUrl: project.liveUrl ?? '',
+         category: project.category ?? '',
+         featured: project.featured ?? false
       }));
 
-      // Transform work experience data
-      const workExperienceData: WorkExperienceData[] = visibleWorkExperience.map(exp => ({
-         company: exp.company,
-         position: exp.position,
-         companyLogo: exp.companyLogo,
-         startDate: exp.startDate,
-         endDate: exp.endDate,
-         isCurrent: exp.isCurrent,
-         description: exp.description,
-         technologies: exp.technologies || []
+      const workExperienceData: WorkExperienceData[] = (visibleWorkExperience as Array<Partial<WorkExperienceData>>).map((exp) => ({
+         company: exp.company ?? '',
+         position: exp.position ?? '',
+         companyLogo: exp.companyLogo ?? '',
+         startDate: exp.startDate ?? new Date(0),
+         endDate: exp.endDate ?? null,
+         isCurrent: exp.isCurrent ?? false,
+         description: exp.description ?? '',
+         technologies: exp.technologies ?? []
       }));
 
       const responseData = {
@@ -146,9 +134,9 @@ export async function GET(request: NextRequest) {
          projects: projectsData,
          workExperience: workExperienceData,
          stats: {
-            totalBlogs: publishedBlogs.length,
-            totalProjects: publishedProjects.length,
-            totalSkills: visibleSkills.length,
+            totalBlogs: blogsData.length,
+            totalProjects: projectsData.length,
+            totalSkills: skillNames.length,
             totalExperience: workExperienceData.filter(exp => exp.isCurrent || exp.endDate).length
          }
       };

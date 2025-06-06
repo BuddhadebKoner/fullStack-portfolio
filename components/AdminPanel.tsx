@@ -10,8 +10,6 @@ import SkillsManagement from './admin-management/SkillsManagement';
 import WorkExperienceManagement from './admin-management/WorkExperienceManagement';
 import ProfileManagement from './admin-management/ProfileManagement';
 import AnalyticsManagement from './admin-management/AnalyticsManagement';
-import ChatManagement from './admin-management/ChatManagement';
-import AdminActivitiesManagement from './admin-management/AdminActivitiesManagement';
 
 interface AdminPanelProps {
   onClose: () => void;
@@ -55,9 +53,6 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
     { id: 'work-experience', label: 'Work Experience', icon: '💼' },
     { id: 'profile', label: 'Profile', icon: '👤' },
     { id: 'analytics', label: 'Analytics', icon: '📈' },
-    { id: 'chat', label: 'Chat Messages', icon: '💬' },
-    { id: 'activities', label: 'Activities', icon: '📋' },
-    { id: 'settings', label: 'Settings', icon: '⚙️' },
   ];
 
   const renderTabContent = () => {
@@ -76,12 +71,6 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
         return <ProfileManagement />;
       case 'analytics':
         return <AnalyticsManagement />;
-      case 'chat':
-        return <ChatManagement />;
-      case 'activities':
-        return <AdminActivitiesManagement />;
-      case 'settings':
-        return <SettingsManagement />;
       default:
         return <DashboardOverview />;
     }
@@ -140,64 +129,6 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
           {/* Main Content */}
           <div className="flex-1 p-6 overflow-y-auto">
             {renderTabContent()}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Placeholder component for settings tab
-function SettingsManagement() {
-  return (
-    <div className="space-y-6">
-      <h3 className="text-white text-2xl font-semibold">Settings</h3>
-      <div className="space-y-4">
-        <div className="bg-[#262626] rounded-lg p-6 border border-[#404040]">
-          <h4 className="text-white font-semibold mb-4">Site Configuration</h4>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-[#e0e0e0] text-sm mb-2">Site Title</label>
-              <input
-                type="text"
-                defaultValue="Portfolio Website"
-                className="w-full bg-[#1a1a1a] border border-[#404040] rounded-lg px-4 py-2 text-white"
-              />
-            </div>
-            <div>
-              <label className="block text-[#e0e0e0] text-sm mb-2">Site Description</label>
-              <textarea
-                defaultValue="A modern portfolio website"
-                rows={3}
-                className="w-full bg-[#1a1a1a] border border-[#404040] rounded-lg px-4 py-2 text-white"
-              />
-            </div>
-            <div className="flex gap-4">
-              <button className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors">
-                Save Changes
-              </button>
-              <button className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors">
-                Reset
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-[#262626] rounded-lg p-6 border border-[#404040]">
-          <h4 className="text-white font-semibold mb-4">Data Management</h4>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
-              Refresh All Data
-            </button>
-            <button className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors">
-              Export Data
-            </button>
-            <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors">
-              Backup
-            </button>
-            <button className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">
-              Clear Cache
-            </button>
           </div>
         </div>
       </div>
