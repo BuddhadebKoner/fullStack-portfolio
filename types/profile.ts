@@ -29,6 +29,7 @@ export interface ProfileData {
     website?: string;
     instagram?: string;
   };
+  resumeUrl?: string;
 }
 
 export interface ProfileFormData {
@@ -43,6 +44,7 @@ export interface ProfileFormData {
   avatar: string;
   socialLinks: SocialLinks;
   isPublic: boolean;
+  resumeUrl: string;
 }
 
 export interface ProfileUpdateData extends Partial<ProfileFormData> { }

@@ -148,14 +148,13 @@ export default function ProfileManagement({ onRefresh }: ProfileManagementProps)
                 </div>
 
                 <div className="bg-[#262626] rounded-lg p-4 border border-[#404040]">
-                  <h5 className="text-white font-medium mb-3">Professional Info</h5>
+                  <h5 className="text-white font-medium mb-3">Resume</h5>
                   <div className="space-y-2 text-sm">
-                    <p className="text-[#a0a0a0]">
-                      <span className="text-white">Experience:</span> {profile.experience || 0} years
-                    </p>
-                    <p className="text-[#a0a0a0]">
-                      <span className="text-white">Bio:</span> {profile.bio?.substring(0, 100) || 'No bio provided'}...
-                    </p>
+                    {profile.resumeUrl ? (
+                      <a href={profile.resumeUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">View Resume PDF</a>
+                    ) : (
+                      <span className="text-[#a0a0a0]">No resume link set</span>
+                    )}  
                   </div>
                 </div>
               </div>

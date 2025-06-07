@@ -21,9 +21,23 @@ export default function Header({ onChatOpen, profile }: HeaderProps) {
         {displayBio}
       </p>
       <div className="flex gap-3 mb-10 flex-wrap">
-        <button className="bg-white text-[#161616] rounded px-4 py-2 font-medium text-sm shadow hover:bg-[#f0f0f0] transition border border-white">
-          Download Resume
-        </button>
+        {profile?.resumeUrl ? (
+          <a
+            href={profile.resumeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-white text-[#161616] rounded px-4 py-2 font-medium text-sm shadow hover:bg-[#f0f0f0] transition border border-white"
+          >
+            Download Resume
+          </a>
+        ) : (
+          <button
+            className="bg-white text-[#161616] rounded px-4 py-2 font-medium text-sm shadow border border-white opacity-50 cursor-not-allowed"
+            disabled
+          >
+            Download Resume
+          </button>
+        )}
         <button
           className="flex items-center gap-2 border border-white px-4 py-2 rounded text-sm font-medium hover:bg-[#1d1d1d] transition"
           onClick={onChatOpen}

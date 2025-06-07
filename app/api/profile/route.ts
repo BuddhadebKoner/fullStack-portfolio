@@ -70,7 +70,8 @@ export async function POST(request: NextRequest) {
       bio,
       avatar,
       socialLinks = {},
-      isPublic = true
+      isPublic = true,
+      resumeUrl = ''
     } = body;
 
     // Validate required fields
@@ -102,7 +103,8 @@ export async function POST(request: NextRequest) {
       bio,
       avatar,
       socialLinks,
-      isPublic
+      isPublic,
+      resumeUrl
     });
 
     await profile.save();
@@ -172,7 +174,8 @@ export async function PUT(request: NextRequest) {
       bio,
       avatar,
       socialLinks = {},
-      isPublic = true
+      isPublic = true,
+      resumeUrl = ''
     } = body;
 
     // Validate required fields
@@ -198,7 +201,8 @@ export async function PUT(request: NextRequest) {
         bio,
         avatar,
         socialLinks,
-        isPublic
+        isPublic,
+        resumeUrl
       },
       { 
         new: true, 

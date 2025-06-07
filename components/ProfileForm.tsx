@@ -41,6 +41,7 @@ export default function ProfileForm({
             website: initialData?.socialLinks?.website || '',
          },
          isPublic: initialData?.isPublic ?? true,
+         resumeUrl: initialData?.resumeUrl || '',
       },
       errors: {},
       isLoading: false,
@@ -71,6 +72,7 @@ export default function ProfileForm({
                   website: initialData.socialLinks?.website || '',
                },
                isPublic: initialData.isPublic ?? true,
+               resumeUrl: initialData.resumeUrl || '',
             },
             isDirty: false,
          }));
@@ -83,6 +85,7 @@ export default function ProfileForm({
       { name: 'lastName', label: 'Last Name', type: 'text', required: true, maxLength: 50 },
       { name: 'email', label: 'Email', type: 'email', required: true },
       { name: 'phone', label: 'Phone', type: 'tel', maxLength: 20 },
+      { name: 'resumeUrl', label: 'Resume PDF Link', type: 'url', placeholder: 'https://yourdomain.com/resume.pdf' },
    ];
 
    const locationFields: FormField[] = [
@@ -136,6 +139,13 @@ export default function ProfileForm({
          case 'bio':
             if (value.length > 500) return 'Bio cannot exceed 500 characters';
             break;
+         case 'resumeUrl':
+            if (
+              value &&
+              !/^https?:\/\/.+\.pdf($|\?)/.test(value) &&
+              !/^https?:\/\/drive\.google\.com\/file\/d\/[\w-]+\/(view|preview)(\?.*)?$/.test(value)
+            ) return 'Please provide a valid PDF or Google Drive file link';
+            break;
          default:
             if (name.includes('socialLinks.')) {
                return validateUrl(value);
@@ -153,6 +163,8 @@ export default function ProfileForm({
          if (name.startsWith('socialLinks.')) {
             const socialKey = name.split('.')[1] as keyof typeof newData.socialLinks;
             newData.socialLinks = { ...newData.socialLinks, [socialKey]: value as string };
+         } else if (name === 'resumeUrl') {
+            newData.resumeUrl = value as string;
          } else {
             (newData as unknown as Record<string, unknown>)[name] = value;
          }

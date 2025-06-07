@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
          visibleWorkExperience
       ] = await Promise.all([
          Profile.findOne({ isPublic: true })
-            .select('firstName lastName bio avatar socialLinks city country email')
+            .select('firstName lastName bio avatar socialLinks city country email resumeUrl')
             .lean() as Promise<MongoProfile | null>,
 
          Blog.find({ isPublished: true })
@@ -128,6 +128,7 @@ export async function GET(request: NextRequest) {
             city: publicProfile.city || '',
             country: publicProfile.country || '',
             email: publicProfile.email || '',
+            resumeUrl: publicProfile.resumeUrl || '',
          } : null,
          skills: skillNames,
          blogs: blogsData,

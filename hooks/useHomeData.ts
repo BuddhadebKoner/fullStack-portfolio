@@ -14,6 +14,7 @@ export interface HomeProfile {
   city?: string;
   country?: string;
   email?: string;
+  resumeUrl?: string;
 }
 
 export interface HomeBlog {

@@ -11,6 +11,7 @@ export interface IProfile extends Document {
   country?: string;
   bio?: string;
   avatar?: string;
+  resumeUrl?: string;
   socialLinks: {
     github?: string;
     linkedin?: string;
@@ -83,6 +84,18 @@ const ProfileSchema = new Schema<IProfile>({
   avatar: {
     type: String,
     trim: true
+  },
+  resumeUrl: {
+    type: String,
+    trim: true,
+    validate: {
+      validator: function(v: string) {
+        return !v ||
+          /^https?:\/\/.+\.pdf($|\?)/.test(v) ||
+          /^https?:\/\/drive\.google\.com\/file\/d\/[\w-]+\/(view|preview)(\?.*)?$/.test(v);
+      },
+      message: 'Please provide a valid PDF or Google Drive file link'
+    }
   },
   socialLinks: {
     github: {
