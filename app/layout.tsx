@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from '@clerk/nextjs';
 import { AdminProvider } from '@/contexts/AdminContext';
 import "./globals.css";
+import Footer from "@/components/Footer";
+import ChatLayout from "@/components/ChatLayout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -90,7 +92,11 @@ export default function RootLayout({
           <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
           >
-            {children}
+            <ChatLayout>
+              {children}
+              {/* Footer */}
+              <Footer />
+            </ChatLayout>
           </body>
         </html>
       </AdminProvider>

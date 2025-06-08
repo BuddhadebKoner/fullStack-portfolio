@@ -24,6 +24,7 @@ export default function FloatingChatButton({ onClick, isVisible, isChatOpen }: F
         onClick={handleClick}
         title={isChatOpen ? "Close chat" : "Chat with Buddhadeb"}
         type="button"
+        style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
       >
         {isChatOpen ? (
           <FaTimes className="text-xl" />

@@ -1,35 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import Header from "@/components/Header";
 import SkillsCard from "@/components/SkillsCard";
 import ConnectCard from "@/components/ConnectCard";
 import BlogsSection from "@/components/BlogsSection";
 import WorkExperience from "@/components/WorkExperience";
 import ProjectsSection from "@/components/ProjectsSection";
-import ChatPopup from "@/components/ChatPopup";
-import FloatingChatButton from "@/components/FloatingChatButton";
-import Footer from "@/components/Footer";
 import { useHomeData } from "@/hooks/useHomeData";
 
 export default function Home() {
-  const [chatOpen, setChatOpen] = useState(false);
   const { data: homeData, isLoading, error } = useHomeData();
-
-  // Handle chat toggle
-  const handleChatToggle = () => {
-    setChatOpen((prev) => !prev);
-  };
-
-  // Handle chat open from header
-  const handleChatOpen = () => {
-    setChatOpen(true);
-  };
-
-  // Handle chat close
-  const handleChatClose = () => {
-    setChatOpen(false);
-  };
 
   // Show loading state
   if (isLoading) {
@@ -90,7 +70,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#161616] text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center">
       {/* Header */}
-      <Header onChatOpen={handleChatOpen} profile={homeData?.profile} />
+      <Header profile={homeData?.profile} />
 
       {/* Skills and Connect */}
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
@@ -106,19 +86,6 @@ export default function Home() {
 
       {/* Projects */}
       <ProjectsSection projects={projects} />
-
-      {/* Footer */}
-      <Footer />
-
-      {/* Chat Popup UI */}
-      <ChatPopup isOpen={chatOpen} onClose={handleChatClose} />
-
-      {/* Floating Chat Button */}
-      <FloatingChatButton
-        onClick={handleChatToggle}
-        isVisible={true}
-        isChatOpen={chatOpen}
-      />
     </div>
   );
-}
+} 

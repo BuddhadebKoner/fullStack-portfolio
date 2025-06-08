@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import ProjectCard from "./ProjectCard";
 import ProjectDetailsModal from "./ProjectDetailsModal";
-import { useProjects, ProjectData } from "../hooks/useProjects";
+import { ProjectData } from "../hooks/useProjects";
 
 interface Project {
   title: string;
@@ -14,7 +14,6 @@ interface ProjectsSectionProps {
 }
 
 export default function ProjectsSection({ projects }: ProjectsSectionProps) {
-  const { projects: allProjects, fetchProjects } = useProjects();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<ProjectData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -22,14 +21,24 @@ export default function ProjectsSection({ projects }: ProjectsSectionProps) {
   const handleCardClick = async (title: string) => {
     setLoading(true);
     setModalOpen(true);
-    // Find the project by title (or use a unique id if available)
-    let project = allProjects.find((p) => p.title === title);
-    if (!project) {
-      await fetchProjects();
-      project = allProjects.find((p) => p.title === title);
+
+    try {
+      // Fetch the specific project details from the API
+      const response = await fetch('/api/projects');
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        const project = result.data.find((p: ProjectData) => p.title === title);
+        setSelectedProject(project ?? null);
+      } else {
+        setSelectedProject(null);
+      }
+    } catch (error) {
+      console.error('Error fetching project details:', error);
+      setSelectedProject(null);
+    } finally {
+      setLoading(false);
     }
-    setSelectedProject(project ?? null);
-    setLoading(false);
   };
 
   return (

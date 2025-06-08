@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { useSimpleChat } from "@/hooks/useSimpleChat";
 import { useUser } from '@clerk/nextjs';
 import Image from "next/image";
+import Link from "next/link";
 
 interface ChatPopupProps {
   isOpen: boolean;
@@ -58,12 +59,15 @@ export default function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
   };
 
   const renderMessageWithLinks = (text: string) => {
-    // Regular expression to match URLs
+    // Regular expressions to match URLs and internal routes
     const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const routeRegex = /(\/[^\s]*)/g;
 
+    // First split by URLs, then by routes
     const parts = text.split(urlRegex);
-
+    
     return parts.map((part, index) => {
+      // Check if it's an external URL
       if (urlRegex.test(part)) {
         return (
           <a
@@ -77,16 +81,35 @@ export default function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
           </a>
         );
       }
-      return part;
+      
+      // Split this part by routes
+      const routeParts = part.split(routeRegex);
+      
+      return routeParts.map((routePart, routeIndex) => {
+        // Check if it's an internal route (starts with /)
+        if (routeRegex.test(routePart) && routePart.startsWith('/')) {
+          return (
+            <Link
+              key={`${index}-${routeIndex}`}
+              href={routePart}
+              className="inline-flex items-center gap-1 text-green-400 hover:text-green-300 underline decoration-green-400/50 hover:decoration-green-300 transition-colors cursor-pointer"
+              onClick={onClose} // Close chat when navigating
+            >
+              {routePart}
+            </Link>
+          );
+        }
+        return routePart;
+      });
     });
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-end justify-end z-50">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-[#232323] text-white w-[350px] md:w-[400px] h-[500px] rounded-2xl m-8 shadow-2xl flex flex-col z-10 border border-[#404040]">
+    <div className="fixed inset-0 flex items-end justify-end z-50 pointer-events-none">
+      <div className="absolute inset-0 bg-black/40 pointer-events-auto" onClick={onClose} />
+      <div className="relative bg-[#232323] text-white w-[350px] md:w-[400px] h-[500px] rounded-2xl m-4 md:m-8 shadow-2xl flex flex-col z-10 border border-[#404040] pointer-events-auto">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-[#404040]">
           <div className="flex items-center gap-2">

@@ -1,18 +1,20 @@
 import { FaPaperPlane } from "react-icons/fa";
 import { HomeProfile } from "@/hooks/useHomeData";
+import { useChat } from "./ChatLayout";
 
 interface HeaderProps {
-  onChatOpen: () => void;
   profile?: HomeProfile | null;
 }
 
-export default function Header({ onChatOpen, profile }: HeaderProps) {
-  const displayName = profile?.firstName && profile?.lastName 
-    ? `${profile.firstName} ${profile.lastName}` 
-    : "Aasu Yadav";
+export default function Header({ profile }: HeaderProps) {
+  const { handleChatToggle } = useChat();
   
-  const displayBio = profile?.bio || 
-    "A passionate full–stack developer and freelancer, dedicated to building innovative products and web applications while delivering high-quality, client-focused solutions.";
+  const displayName = profile?.firstName && profile?.lastName
+    ? `${profile.firstName} ${profile.lastName}`
+    : "Buddhadeb Koner";
+
+  const displayBio = profile?.bio ||
+    "I am Buddhadeb Koner, a FullStack Web Developer with a passion for creating and sharing great software. I specialize in the MERN stack and Next.js, and I am always eager to learn new technologies and frameworks. I am a dedicated problem solver who enjoys contributing to open-source projects and building innovative web applications.";
 
   return (
     <div className="w-full max-w-5xl">
@@ -40,7 +42,7 @@ export default function Header({ onChatOpen, profile }: HeaderProps) {
         )}
         <button
           className="flex items-center gap-2 border border-white px-4 py-2 rounded text-sm font-medium hover:bg-[#1d1d1d] transition"
-          onClick={onChatOpen}
+          onClick={handleChatToggle}
         >
           <FaPaperPlane className="text-base" /> Chat with me
         </button>

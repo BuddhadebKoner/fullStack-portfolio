@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
 import Blog from '@/models/blog.model';
+import { BlogData } from '@/types/blog';
 import { auth } from '@clerk/nextjs/server';
 
 // Define interface for blog query
@@ -19,6 +20,47 @@ export async function GET(request: NextRequest) {
     await connectToDatabase();
 
     const { searchParams } = new URL(request.url);
+    const slug = searchParams.get('slug');
+    
+    // If slug is provided, fetch single blog
+    if (slug) {
+      const blog = await Blog.findOne({ slug, isPublished: true }).lean();
+      
+      if (!blog) {
+        return NextResponse.json(
+          { success: false, error: 'Blog not found' },
+          { status: 404 }
+        );
+      }
+
+      // Increment views
+      await Blog.updateOne({ slug }, { $inc: { views: 1 } });
+      
+      // Type the blog object properly
+      const singleBlog = Array.isArray(blog) ? blog[0] : blog;
+      const blogWithViews: BlogData = {
+        _id: singleBlog._id?.toString() ?? '',
+        title: singleBlog.title ?? '',
+        desc: singleBlog.desc ?? '',
+        content: singleBlog.content ?? '',
+        author: singleBlog.author ?? '',
+        tags: singleBlog.tags ?? [],
+        imageUrl: singleBlog.imageUrl ?? '',
+        slug: singleBlog.slug ?? '',
+        isPublished: singleBlog.isPublished ?? false,
+        publishedAt: singleBlog.publishedAt ?? '',
+        views: (singleBlog.views ?? 0) + 1,
+        likes: singleBlog.likes ?? 0,
+        createdAt: singleBlog.createdAt ?? '',
+        updatedAt: singleBlog.updatedAt ?? ''
+      };
+      
+      return NextResponse.json({
+        success: true,
+        data: [blogWithViews]
+      });
+    }
+
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const search = searchParams.get('search') || '';

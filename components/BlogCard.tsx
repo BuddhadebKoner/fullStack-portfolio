@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 interface BlogCardProps {
   title: string;
   desc: string;
@@ -9,8 +11,8 @@ interface BlogCardProps {
   createdAt?: string;
 }
 
-export default function BlogCard({ title, desc, views, likes, tags, author }: BlogCardProps) {
-  return (
+export default function BlogCard({ title, desc, slug, views, likes, tags, author }: BlogCardProps) {
+  const cardContent = (
     <div className="bg-[#232323] rounded-xl p-5 h-full flex flex-col justify-between border border-[#232323] hover:border-[#404040] transition-colors group cursor-pointer">
       <div>
         <h4 className="font-semibold mb-2 text-base">{title}</h4>
@@ -41,4 +43,14 @@ export default function BlogCard({ title, desc, views, likes, tags, author }: Bl
       </div>
     </div>
   );
+
+  if (slug) {
+    return (
+      <Link href={`/blog/${slug}`}>
+        {cardContent}
+      </Link>
+    );
+  }
+
+  return cardContent;
 }
