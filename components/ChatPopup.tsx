@@ -61,11 +61,11 @@ export default function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
   const renderMessageWithLinks = (text: string) => {
     // Regular expressions to match URLs and internal routes
     const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const routeRegex = /(\/[^\s]*)/g;
+    const routeRegex = /(\/[^\s,)\]"']*)/g; // Enhanced route matching
 
     // First split by URLs, then by routes
     const parts = text.split(urlRegex);
-    
+
     return parts.map((part, index) => {
       // Check if it's an external URL
       if (urlRegex.test(part)) {
@@ -81,21 +81,32 @@ export default function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
           </a>
         );
       }
-      
+
       // Split this part by routes
       const routeParts = part.split(routeRegex);
-      
+
       return routeParts.map((routePart, routeIndex) => {
         // Check if it's an internal route (starts with /)
         if (routeRegex.test(routePart) && routePart.startsWith('/')) {
+          // Clean up route part by removing common punctuation at the end
+          const cleanRoute = routePart.replace(/[,.)}\]"']*$/, '');
+
+          // Skip if the route is too short or just a slash
+          if (cleanRoute.length <= 1) {
+            return routePart;
+          }
+
+
+          const routeColor = 'text-green-400 hover:text-green-300 decoration-green-400/50 hover:decoration-green-300';
+
           return (
             <Link
               key={`${index}-${routeIndex}`}
-              href={routePart}
-              className="inline-flex items-center gap-1 text-green-400 hover:text-green-300 underline decoration-green-400/50 hover:decoration-green-300 transition-colors cursor-pointer"
+              href={cleanRoute}
+              className={`inline-flex items-center gap-1 ${routeColor} underline transition-colors cursor-pointer`}
               onClick={onClose} // Close chat when navigating
             >
-              {routePart}
+              {cleanRoute}
             </Link>
           );
         }
@@ -116,7 +127,7 @@ export default function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
             <span className="font-semibold">Chat with Buddhadeb</span>
           </div>
-          <button
+          ``          <button
             className="hover:bg-[#181818] rounded-full p-1"
             onClick={onClose}
           >

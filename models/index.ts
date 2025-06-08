@@ -7,6 +7,7 @@ export { default as Profile, type IProfile } from './profile.model';
 export { default as Analytics, type IAnalytics } from './analytics.model';
 export { default as AdminActivity, type IAdminActivity } from './adminActivity.model';
 export { default as ChatMessage, type IChatMessage } from './chatMessage.model';
+export { default as ChatSession, type IChatSession } from './chatSession.model';
 export { default as SiteSettings, type ISiteSettings } from './siteSettings.model';
 
 // Type definitions for API responses

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getChatContext } from '@/lib/services/contextService';
 import { getAIResponse } from '@/lib/services/aiService';
+import { connectToDatabase } from '@/lib/db';
+import ChatSession from '@/models/chatSession.model';
 
 // --- Types ---
 interface ConversationMessage {
@@ -9,6 +11,7 @@ interface ConversationMessage {
 }
 interface RequestBody {
   message: string;
+  sessionId?: string;
   conversationHistory?: ConversationMessage[];
 }
 
@@ -23,6 +26,76 @@ const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 function getRateLimitKey(request: NextRequest): string {
   const forwarded = request.headers.get('x-forwarded-for');
   return forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') || 'unknown';
+}
+
+// --- Database Functions ---
+async function saveMessagesToSession(
+  sessionId: string, 
+  userMessage: string,
+  assistantMessage: string,
+  request: NextRequest
+) {
+  try {
+    await connectToDatabase();
+    
+    // Get user IP address
+    const ipAddress = getRateLimitKey(request);
+    
+    // Generate unique IDs for messages
+    const userMessageId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const assistantMessageId = `${Date.now() + 1}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    const timestamp = new Date();
+    
+    // Try to find existing session
+    let session = await ChatSession.findOne({ sessionId });
+    
+    if (session) {
+      // Add messages to existing session
+      session.messages.push(
+        {
+          id: userMessageId,
+          sender: 'user',
+          message: userMessage,
+          timestamp
+        },
+        {
+          id: assistantMessageId,
+          sender: 'assistant',
+          message: assistantMessage,
+          timestamp: new Date(timestamp.getTime() + 1)
+        }
+      );
+      await session.save();
+    } else {
+      // Create new session with messages
+      session = new ChatSession({
+        sessionId,
+        messages: [
+          {
+            id: userMessageId,
+            sender: 'user',
+            message: userMessage,
+            timestamp
+          },
+          {
+            id: assistantMessageId,
+            sender: 'assistant',
+            message: assistantMessage,
+            timestamp: new Date(timestamp.getTime() + 1)
+          }
+        ],
+        userInfo: {
+          ipAddress
+        },
+        isActive: true
+      });
+      await session.save();
+    }
+  } catch (error) {
+    console.error('Error saving messages to session:', error);
+    // Don't throw error to avoid breaking the chat flow
+  }
 }
 function isRateLimited(key: string): boolean {
   const now = Date.now();
@@ -371,12 +444,17 @@ export async function POST(request: NextRequest) {
     // Parse body
     let body: RequestBody;
     try { body = await request.json(); } catch { return NextResponse.json({ success: false, error: 'Invalid JSON' }, { status: 400 }); }
-    const { message, conversationHistory = [] } = body;
+    const { message, sessionId, conversationHistory = [] } = body;
+    
+    // Generate sessionId if not provided
+    const currentSessionId = sessionId || `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
     // Validate
     const v = validateInput(message);
     if (!v.valid) return NextResponse.json({ success: false, error: v.error }, { status: 400 });
     if (!Array.isArray(conversationHistory)) return NextResponse.json({ success: false, error: 'Invalid conversation history' }, { status: 400 });
     const limitedHistory = conversationHistory.slice(-MAX_CONVERSATION_HISTORY).filter(m => m && typeof m.text === 'string' && m.text.trim());
+    
     // Analyze and fetch context
     const cats = analyzeCategory(v.sanitized);
     const ctx = await getChatContext({
@@ -386,16 +464,36 @@ export async function POST(request: NextRequest) {
       includeWorkExperience: cats.includes('workExperience'),
       includeBlogs: cats.includes('blogs'),
     });
+    
+    let assistantReply: string;
+    
     // Direct answer if possible
     const direct = directContextAnswer(v.sanitized, ctx);
-    if (direct) return NextResponse.json({ success: true, reply: direct });
-    // Intelligent response handler
-    const intelligent = getIntelligentResponse(v.sanitized, ctx);
-    if (intelligent) return NextResponse.json({ success: true, reply: intelligent });
-    // AI fallback
-    const ai = await getAIResponse({ message: v.sanitized, conversationHistory: limitedHistory, context: ctx });
-    return NextResponse.json({ success: true, reply: ai.reply, processingTime: Date.now() - startTime });
-  } catch {
+    if (direct) {
+      assistantReply = direct;
+    } else {
+      // Intelligent response handler
+      const intelligent = getIntelligentResponse(v.sanitized, ctx);
+      if (intelligent) {
+        assistantReply = intelligent;
+      } else {
+        // AI fallback
+        const ai = await getAIResponse({ message: v.sanitized, conversationHistory: limitedHistory, context: ctx });
+        assistantReply = ai.reply;
+      }
+    }
+    
+    // Save both user and assistant messages to session
+    await saveMessagesToSession(currentSessionId, v.sanitized, assistantReply, request);
+    
+    return NextResponse.json({ 
+      success: true, 
+      reply: assistantReply, 
+      sessionId: currentSessionId,
+      processingTime: Date.now() - startTime 
+    });
+  } catch (error) {
+    console.error('Chat API error:', error);
     return NextResponse.json({ success: false, error: 'Internal error' }, { status: 500 });
   }
 }

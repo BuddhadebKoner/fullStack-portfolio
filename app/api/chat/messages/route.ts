@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db';
-import ChatMessage from '@/models/chatMessage.model';
+import ChatSession, { IChatSession } from '@/models/chatSession.model';
 
 // GET /api/chat/messages - Get chat messages for a session
 export async function GET(request: NextRequest) {
@@ -19,17 +19,20 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Calculate pagination
+    // Find the session
+    const session = await ChatSession.findOne({ sessionId }).lean() as IChatSession | null;
+    
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: 'Session not found' },
+        { status: 404 }
+      );
+    }
+
+    // Calculate pagination for messages
     const skip = (page - 1) * limit;
-
-    // Execute query
-    const messages = await ChatMessage.find({ sessionId })
-      .sort({ createdAt: 1 })
-      .skip(skip)
-      .limit(limit)
-      .lean();
-
-    const total = await ChatMessage.countDocuments({ sessionId });
+    const messages = session.messages.slice(skip, skip + limit);
+    const total = session.messages.length;
     const pages = Math.ceil(total / limit);
 
     return NextResponse.json({
@@ -43,7 +46,8 @@ export async function GET(request: NextRequest) {
       }
     });
 
-  } catch {
+  } catch (error) {
+    console.error('Error fetching chat messages:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to fetch chat messages' },
       { status: 500 }
@@ -61,8 +65,6 @@ export async function POST(request: NextRequest) {
       sessionId,
       sender = 'user',
       message,
-      messageType = 'text',
-      metadata = {}
     } = body;
 
     // Validate required fields
@@ -78,28 +80,49 @@ export async function POST(request: NextRequest) {
       request.headers.get('x-real-ip') ||
       'unknown';
 
-    // Add IP to metadata if it's a user message
-    if (sender === 'user' && metadata.userInfo) {
-      metadata.userInfo.ipAddress = ipAddress;
+    // Generate unique message ID
+    const messageId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const timestamp = new Date();
+
+    // Find or create session
+    let session = await ChatSession.findOne({ sessionId }) as IChatSession | null;
+    
+    if (!session) {
+      // Create new session
+      session = new ChatSession({
+        sessionId,
+        messages: [],
+        userInfo: {
+          ipAddress
+        },
+        isActive: true
+      }) as IChatSession;
     }
 
-    const chatMessage = new ChatMessage({
-      sessionId,
+    // Add message to session
+    session.messages.push({
+      id: messageId,
       sender,
       message,
-      messageType,
-      metadata
+      timestamp
     });
 
-    await chatMessage.save();
+    await session.save();
 
     return NextResponse.json({
       success: true,
-      data: chatMessage,
+      data: {
+        id: messageId,
+        sessionId,
+        sender,
+        message,
+        timestamp
+      },
       message: 'Message sent successfully'
     }, { status: 201 });
 
-  } catch {
+  } catch (error) {
+    console.error('Error sending message:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to send message' },
       { status: 500 }
