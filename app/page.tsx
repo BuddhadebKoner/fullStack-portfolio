@@ -9,9 +9,9 @@ import ProjectsSection from "@/components/ProjectsSection";
 import { useHomeData } from "@/hooks/useHomeData";
 
 export default function Home() {
-  const { data: homeData, isLoading, error } = useHomeData();
+  const { data: homeData, isLoading, error, isFetching } = useHomeData();
 
-  // Show loading state
+  // Show loading state only for initial load, not for background refetches
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#161616] text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center justify-center">
@@ -64,11 +64,20 @@ export default function Home() {
   }));
   const projects = homeData?.projects || [];
 
-
-  console.log("Home Data:", homeData);
+  // console.log("Home Data:", homeData);
 
   return (
     <div className="min-h-screen bg-[#161616] text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center">
+      {/* Show subtle loading indicator for background fetches */}
+      {isFetching && !isLoading && (
+        <div className="fixed top-4 right-4 z-50">
+          <div className="bg-blue-600/20 border border-blue-600/50 rounded-lg px-3 py-2 flex items-center space-x-2">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-400"></div>
+            <span className="text-blue-400 text-sm">Updating...</span>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <Header profile={homeData?.profile} />
 

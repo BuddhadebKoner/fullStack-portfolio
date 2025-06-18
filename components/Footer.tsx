@@ -6,8 +6,7 @@ import {
   SignedIn,
   SignedOut
 } from '@clerk/nextjs';
-import AdminPanel from './AdminPanel';
-import { useState } from 'react';
+import Link from 'next/link';
 import { useAdmin } from '@/contexts/AdminContext';
 
 interface FooterProps {
@@ -16,7 +15,6 @@ interface FooterProps {
 }
 
 export default function Footer({ year = 2025 }: FooterProps) {
-  const [showAdmin, setShowAdmin] = useState(false);
   const { isAdmin, isLoading } = useAdmin();
 
   return (
@@ -33,8 +31,8 @@ export default function Footer({ year = 2025 }: FooterProps) {
                 <UserButton />
                 {/* Only show admin button if user is admin */}
                 {isAdmin && !isLoading && (
-                  <button
-                    onClick={() => setShowAdmin(true)}
+                  <Link
+                    href="/admin"
                     className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs rounded transition-colors flex items-center gap-1"
                   >
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -42,7 +40,7 @@ export default function Footer({ year = 2025 }: FooterProps) {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                     Admin
-                  </button>
+                  </Link>
                 )}
               </SignedIn>
 
@@ -57,11 +55,6 @@ export default function Footer({ year = 2025 }: FooterProps) {
           </div>
         </div>
       </footer>
-
-      {/* Admin Panel Modal - Only render if user is admin */}
-      {showAdmin && isAdmin && (
-        <AdminPanel onClose={() => setShowAdmin(false)} />
-      )}
     </>
   );
 }

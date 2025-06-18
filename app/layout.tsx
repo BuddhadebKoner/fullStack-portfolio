@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from '@clerk/nextjs';
 import { AdminProvider } from '@/contexts/AdminContext';
+import { QueryProvider } from '@/lib/query-provider';
 import "./globals.css";
 import Footer from "@/components/Footer";
 import ChatLayout from "@/components/ChatLayout";
@@ -81,25 +82,27 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <AdminProvider>
-        <html lang="en">
-          <head>
-            <link rel="canonical" href="https://buddhadebkoner.vercel.app/" />
-            <link rel="icon" href="/favicon.ico" />
-            <link rel="manifest" href="/manifest.json" />
-            <meta name="robots" content="index, follow" />
-          </head>
-          <body
-            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-          >
-            <ChatLayout>
-              {children}
-              {/* Footer */}
-              <Footer />
-            </ChatLayout>
-          </body>
-        </html>
-      </AdminProvider>
+      <QueryProvider>
+        <AdminProvider>
+          <html lang="en">
+            <head>
+              <link rel="canonical" href="https://buddhadebkoner.vercel.app/" />
+              <link rel="icon" href="/favicon.ico" />
+              <link rel="manifest" href="/manifest.json" />
+              <meta name="robots" content="index, follow" />
+            </head>
+            <body
+              className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+            >
+              <ChatLayout>
+                {children}
+                {/* Footer */}
+                <Footer />
+              </ChatLayout>
+            </body>
+          </html>
+        </AdminProvider>
+      </QueryProvider>
     </ClerkProvider>
   );
 }

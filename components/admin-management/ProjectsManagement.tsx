@@ -21,7 +21,7 @@ interface ProjectFormData {
 }
 
 export default function ProjectsManagement({ onRefresh }: ProjectsManagementProps) {
-  const { projects, isLoading, error, refreshProjects, createProject, updateProject, deleteProject } = useProjects();
+  const { projects, isLoading, error, refetch, createProject, updateProject, deleteProject } = useProjects();
   const [showForm, setShowForm] = useState(false);
   const [editingProject, setEditingProject] = useState<ProjectData | null>(null);
   const [formData, setFormData] = useState<ProjectFormData>({
@@ -40,8 +40,10 @@ export default function ProjectsManagement({ onRefresh }: ProjectsManagementProp
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleRefresh = async () => {
-    await refreshProjects();
-    if (onRefresh) onRefresh();
+    await refetch();
+    if (onRefresh) {
+      onRefresh();
+    }
   };
 
   const resetForm = () => {
@@ -88,16 +90,12 @@ export default function ProjectsManagement({ onRefresh }: ProjectsManagementProp
     const projectData = { ...formData, technologies };
 
     try {
-      let success = false;
       if (editingProject) {
-        success = await updateProject(editingProject._id, projectData);
+        updateProject.mutate({ id: editingProject._id, data: projectData });
       } else {
-        success = await createProject(projectData);
+        createProject.mutate(projectData);
       }
-
-      if (success) {
-        resetForm();
-      }
+      resetForm();
     } catch (error) {
       console.error('Error submitting project:', error);
     } finally {
@@ -107,7 +105,7 @@ export default function ProjectsManagement({ onRefresh }: ProjectsManagementProp
 
   const handleDelete = async (id: string, title: string) => {
     if (confirm(`Are you sure you want to delete "${title}"?`)) {
-      await deleteProject(id);
+      deleteProject.mutate(id);
     }
   };
 
@@ -149,41 +147,41 @@ export default function ProjectsManagement({ onRefresh }: ProjectsManagementProp
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-white text-2xl font-semibold">Project Management</h3>
-        <div className="flex gap-3">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
+        <h3 className="text-white text-xl sm:text-2xl font-semibold">Project Management</h3>
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <button 
             onClick={() => setShowForm(!showForm)}
-            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+            className="px-3 sm:px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm sm:text-base font-medium"
           >
-            {showForm ? 'Cancel' : 'Add Project'}
+            {showForm ? 'Cancel' : '+ Add Project'}
           </button>
           <button 
             onClick={handleRefresh}
             disabled={isLoading}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg transition-colors"
+            className="px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg transition-colors text-sm sm:text-base font-medium"
           >
-            {isLoading ? 'Loading...' : 'Refresh'}
+            {isLoading ? 'Loading...' : '🔄 Refresh'}
           </button>
         </div>
       </div>
 
       {/* Create/Edit Form */}
       {showForm && (
-        <div className="bg-[#262626] rounded-lg border border-[#404040] p-6">
-          <h4 className="text-white text-lg font-semibold mb-4">
+        <div className="bg-[#262626] rounded-lg border border-[#404040] p-4 sm:p-6">
+          <h4 className="text-white text-lg sm:text-xl font-semibold mb-4">
             {editingProject ? 'Edit Project' : 'Create New Project'}
           </h4>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div>
                 <label className="block text-white text-sm font-medium mb-2">Title *</label>
                 <input
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                  className="w-full px-3 py-2 bg-[#1a1a1a] border border-[#404040] rounded-lg text-white focus:border-blue-500 focus:outline-none"
+                  className="w-full px-3 py-2.5 bg-[#1a1a1a] border border-[#404040] rounded-lg text-white focus:border-blue-500 focus:outline-none text-sm sm:text-base"
                   required
                 />
               </div>
@@ -192,7 +190,7 @@ export default function ProjectsManagement({ onRefresh }: ProjectsManagementProp
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                  className="w-full px-3 py-2 bg-[#1a1a1a] border border-[#404040] rounded-lg text-white focus:border-blue-500 focus:outline-none"
+                  className="w-full px-3 py-2.5 bg-[#1a1a1a] border border-[#404040] rounded-lg text-white focus:border-blue-500 focus:outline-none text-sm sm:text-base"
                 >
                   <option value="web">Web</option>
                   <option value="mobile">Mobile</option>
@@ -210,7 +208,7 @@ export default function ProjectsManagement({ onRefresh }: ProjectsManagementProp
                 value={formData.desc}
                 onChange={(e) => setFormData(prev => ({ ...prev, desc: e.target.value }))}
                 rows={3}
-                className="w-full px-3 py-2 bg-[#1a1a1a] border border-[#404040] rounded-lg text-white focus:border-blue-500 focus:outline-none"
+                className="w-full px-3 py-2.5 bg-[#1a1a1a] border border-[#404040] rounded-lg text-white focus:border-blue-500 focus:outline-none resize-none text-sm sm:text-base"
                 required
               />
             </div>
@@ -221,19 +219,19 @@ export default function ProjectsManagement({ onRefresh }: ProjectsManagementProp
                 type="url"
                 value={formData.img}
                 onChange={(e) => setFormData(prev => ({ ...prev, img: e.target.value }))}
-                className="w-full px-3 py-2 bg-[#1a1a1a] border border-[#404040] rounded-lg text-white focus:border-blue-500 focus:outline-none"
+                className="w-full px-3 py-2.5 bg-[#1a1a1a] border border-[#404040] rounded-lg text-white focus:border-blue-500 focus:outline-none text-sm sm:text-base"
                 required
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div>
                 <label className="block text-white text-sm font-medium mb-2">GitHub URL</label>
                 <input
                   type="url"
                   value={formData.githubUrl}
                   onChange={(e) => setFormData(prev => ({ ...prev, githubUrl: e.target.value }))}
-                  className="w-full px-3 py-2 bg-[#1a1a1a] border border-[#404040] rounded-lg text-white focus:border-blue-500 focus:outline-none"
+                  className="w-full px-3 py-2.5 bg-[#1a1a1a] border border-[#404040] rounded-lg text-white focus:border-blue-500 focus:outline-none text-sm sm:text-base"
                 />
               </div>
               <div>
@@ -242,25 +240,25 @@ export default function ProjectsManagement({ onRefresh }: ProjectsManagementProp
                   type="url"
                   value={formData.liveUrl}
                   onChange={(e) => setFormData(prev => ({ ...prev, liveUrl: e.target.value }))}
-                  className="w-full px-3 py-2 bg-[#1a1a1a] border border-[#404040] rounded-lg text-white focus:border-blue-500 focus:outline-none"
+                  className="w-full px-3 py-2.5 bg-[#1a1a1a] border border-[#404040] rounded-lg text-white focus:border-blue-500 focus:outline-none text-sm sm:text-base"
                 />
               </div>
             </div>
 
             <div>
               <label className="block text-white text-sm font-medium mb-2">Technologies</label>
-              <div className="flex gap-2 mb-2">
+              <div className="flex flex-col sm:flex-row gap-2 mb-3">
                 <input
                   type="text"
                   value={techInput}
                   onChange={(e) => setTechInput(e.target.value)}
                   placeholder="Enter technologies separated by commas"
-                  className="flex-1 px-3 py-2 bg-[#1a1a1a] border border-[#404040] rounded-lg text-white focus:border-blue-500 focus:outline-none"
+                  className="flex-1 px-3 py-2.5 bg-[#1a1a1a] border border-[#404040] rounded-lg text-white focus:border-blue-500 focus:outline-none text-sm sm:text-base"
                 />
                 <button
                   type="button"
                   onClick={addTechnology}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                  className="px-3 sm:px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm sm:text-base font-medium"
                 >
                   Add
                 </button>
@@ -269,13 +267,13 @@ export default function ProjectsManagement({ onRefresh }: ProjectsManagementProp
                 {formData.technologies.map((tech, index) => (
                   <span
                     key={index}
-                    className="px-2 py-1 bg-blue-600/20 text-blue-400 rounded-full text-sm flex items-center gap-1"
+                    className="px-2 py-1 bg-blue-600/20 text-blue-400 rounded-full text-xs sm:text-sm flex items-center gap-1"
                   >
                     {tech}
                     <button
                       type="button"
                       onClick={() => removeTechnology(index)}
-                      className="text-blue-400 hover:text-blue-300"
+                      className="text-blue-400 hover:text-blue-300 w-4 h-4 flex items-center justify-center"
                     >
                       ×
                     </button>
@@ -284,52 +282,52 @@ export default function ProjectsManagement({ onRefresh }: ProjectsManagementProp
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <label className="block text-white text-sm font-medium mb-2">Order</label>
                 <input
                   type="number"
                   value={formData.order}
                   onChange={(e) => setFormData(prev => ({ ...prev, order: parseInt(e.target.value) || 0 }))}
-                  className="w-full px-3 py-2 bg-[#1a1a1a] border border-[#404040] rounded-lg text-white focus:border-blue-500 focus:outline-none"
+                  className="w-full px-3 py-2.5 bg-[#1a1a1a] border border-[#404040] rounded-lg text-white focus:border-blue-500 focus:outline-none text-sm sm:text-base"
                 />
               </div>
               <div className="flex items-center">
-                <label className="flex items-center text-white text-sm">
+                <label className="flex items-center text-white text-sm font-medium cursor-pointer">
                   <input
                     type="checkbox"
                     checked={formData.featured}
                     onChange={(e) => setFormData(prev => ({ ...prev, featured: e.target.checked }))}
-                    className="mr-2"
+                    className="mr-2 w-4 h-4 text-blue-600 bg-[#1a1a1a] border-[#404040] rounded focus:ring-blue-500"
                   />
                   Featured Project
                 </label>
               </div>
               <div className="flex items-center">
-                <label className="flex items-center text-white text-sm">
+                <label className="flex items-center text-white text-sm font-medium cursor-pointer">
                   <input
                     type="checkbox"
                     checked={formData.isPublished}
                     onChange={(e) => setFormData(prev => ({ ...prev, isPublished: e.target.checked }))}
-                    className="mr-2"
+                    className="mr-2 w-4 h-4 text-blue-600 bg-[#1a1a1a] border-[#404040] rounded focus:ring-blue-500"
                   />
                   Published
                 </label>
               </div>
             </div>
 
-            <div className="flex gap-3 pt-4">
+            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-[#404040]">
               <button
                 type="submit"
-                disabled={isSubmitting}
-                className="px-6 py-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white rounded-lg transition-colors"
+                disabled={isSubmitting || createProject.isPending || updateProject.isPending}
+                className="px-4 sm:px-6 py-2.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white rounded-lg transition-colors text-sm sm:text-base font-medium"
               >
-                {isSubmitting ? 'Saving...' : (editingProject ? 'Update Project' : 'Create Project')}
+                {isSubmitting || createProject.isPending || updateProject.isPending ? 'Saving...' : (editingProject ? 'Update Project' : 'Create Project')}
               </button>
               <button
                 type="button"
                 onClick={resetForm}
-                className="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+                className="px-4 sm:px-6 py-2.5 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors text-sm sm:text-base font-medium"
               >
                 Cancel
               </button>
@@ -342,15 +340,15 @@ export default function ProjectsManagement({ onRefresh }: ProjectsManagementProp
       {isLoading ? (
         <div className="text-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="text-[#a0a0a0] mt-2">Loading projects...</p>
+          <p className="text-[#a0a0a0] mt-2 text-sm sm:text-base">Loading projects...</p>
         </div>
       ) : (
         <div className="bg-[#262626] rounded-lg border border-[#404040] overflow-hidden">
-          <div className="p-4 border-b border-[#404040]">
-            <p className="text-white font-medium">Total Projects: {projects.length}</p>
+          <div className="p-3 sm:p-4 border-b border-[#404040]">
+            <p className="text-white font-medium text-sm sm:text-base">Total Projects: {projects?.length || 0}</p>
           </div>
           <div className="divide-y divide-[#404040] max-h-96 overflow-y-auto">
-            {projects.map((project: ProjectData, index: number) => (
+            {projects?.map((project: ProjectData, index: number) => (
               <div key={project._id || index} className="p-4">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -422,15 +420,16 @@ export default function ProjectsManagement({ onRefresh }: ProjectsManagementProp
                     </button>
                     <button
                       onClick={() => handleDelete(project._id, project.title)}
-                      className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-sm transition-colors"
+                      disabled={deleteProject.isPending}
+                      className="px-3 py-1 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white rounded text-sm transition-colors"
                     >
-                      Delete
+                      {deleteProject.isPending ? 'Deleting...' : 'Delete'}
                     </button>
                   </div>
                 </div>
               </div>
             ))}
-            {projects.length === 0 && (
+            {(!projects || projects.length === 0) && (
               <div className="p-8 text-center">
                 <p className="text-[#a0a0a0] mb-4">No projects found</p>
                 <button

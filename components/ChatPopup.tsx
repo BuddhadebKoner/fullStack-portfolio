@@ -127,7 +127,7 @@ export default function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
             <span className="font-semibold">Chat with Buddhadeb</span>
           </div>
-          ``          <button
+          <button
             className="hover:bg-[#181818] rounded-full p-1"
             onClick={onClose}
           >

@@ -142,49 +142,59 @@ export default function SkillsManagement({ onRefresh }: SkillsManagementProps) {
 
   if (error) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h3 className="text-white text-2xl font-semibold">Skills Management</h3>
-          <div className="flex gap-2">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
+          <h3 className="text-white text-xl sm:text-2xl font-semibold">Skills Management</h3>
+          <div className="flex flex-col sm:flex-row gap-2">
             <button 
               onClick={handleCreate}
-              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+              className="px-3 sm:px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm sm:text-base font-medium"
             >
-              Add Skill
+              + Add Skill
             </button>
             <button 
               onClick={handleRefresh}
               disabled={isLoading}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg transition-colors"
+              className="px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg transition-colors text-sm sm:text-base font-medium"
             >
-              {isLoading ? 'Loading...' : 'Refresh Skills'}
+              {isLoading ? 'Loading...' : '🔄 Refresh'}
             </button>
           </div>
         </div>
         <div className="bg-red-600/20 border border-red-600/30 rounded-lg p-4">
-          <p className="text-red-400">Error: {error}</p>
+          <div className="flex items-start gap-3">
+            <div className="w-6 h-6 bg-red-600/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-red-400 font-medium text-sm sm:text-base">Error Loading Skills</p>
+              <p className="text-red-300 text-xs sm:text-sm mt-1">{error}</p>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-white text-2xl font-semibold">Skills Management</h3>
-        <div className="flex gap-2">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
+        <h3 className="text-white text-xl sm:text-2xl font-semibold">Skills Management</h3>
+        <div className="flex flex-col sm:flex-row gap-2">
           <button 
             onClick={handleCreate}
-            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+            className="px-3 sm:px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm sm:text-base font-medium"
           >
-            Add Skill
+            + Add Skill
           </button>
           <button 
             onClick={handleRefresh}
             disabled={isLoading}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg transition-colors"
+            className="px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg transition-colors text-sm sm:text-base font-medium"
           >
-            {isLoading ? 'Loading...' : 'Refresh Skills'}
+            {isLoading ? 'Loading...' : '🔄 Refresh'}
           </button>
         </div>
       </div>
@@ -192,12 +202,12 @@ export default function SkillsManagement({ onRefresh }: SkillsManagementProps) {
       {isLoading ? (
         <div className="text-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="text-[#a0a0a0] mt-2">Loading skills...</p>
+          <p className="text-[#a0a0a0] mt-2 text-sm sm:text-base">Loading skills...</p>
         </div>
       ) : (
         <div className="bg-[#262626] rounded-lg border border-[#404040] overflow-hidden">
-          <div className="p-4 border-b border-[#404040]">
-            <p className="text-white font-medium">Total Skills: {skills.length}</p>
+          <div className="p-3 sm:p-4 border-b border-[#404040]">
+            <p className="text-white font-medium text-sm sm:text-base">Total Skills: {skills.length}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
             {skills.map((skill: SkillData, index: number) => (

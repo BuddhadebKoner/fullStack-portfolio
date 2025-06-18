@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
+import { useRouter } from 'next/navigation';
 import ProjectCard from "./ProjectCard";
-import ProjectDetailsModal from "./ProjectDetailsModal";
 import { ProjectData } from "../hooks/useProjects";
 
 interface Project {
@@ -14,30 +14,25 @@ interface ProjectsSectionProps {
 }
 
 export default function ProjectsSection({ projects }: ProjectsSectionProps) {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<ProjectData | null>(null);
-  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleCardClick = async (title: string) => {
-    setLoading(true);
-    setModalOpen(true);
-
     try {
-      // Fetch the specific project details from the API
+      // Fetch the specific project details from the API to get the ID
       const response = await fetch('/api/projects');
       const result = await response.json();
 
       if (result.success && result.data) {
         const project = result.data.find((p: ProjectData) => p.title === title);
-        setSelectedProject(project ?? null);
-      } else {
-        setSelectedProject(null);
+        if (project && project._id) {
+          // Navigate to the project page
+          router.push(`/project/${project._id}`);
+        } else {
+          console.error('Project not found or missing ID');
+        }
       }
     } catch (error) {
-      console.error('Error fetching project details:', error);
-      setSelectedProject(null);
-    } finally {
-      setLoading(false);
+      console.error('Error finding project:', error);
     }
   };
 
@@ -56,7 +51,6 @@ export default function ProjectsSection({ projects }: ProjectsSectionProps) {
           />
         ))}
       </div>
-      <ProjectDetailsModal isOpen={modalOpen} onClose={() => setModalOpen(false)} project={selectedProject} loading={loading} />
     </div>
   );
 }

@@ -1,166 +1,120 @@
-import { useState, useEffect } from 'react';
-
-export interface ProjectData {
-  _id: string;
-  title: string;
-  desc: string;
-  technologies: string[];
-  githubUrl?: string;
-  liveUrl?: string;
-  img: string; // Changed from imageUrl to img to match model
-  category: string;
-  order: number;
-  featured: boolean; // Changed from isFeatured to featured to match model
-  isPublished: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface ProjectApiResponse {
-  success: boolean;
-  data?: ProjectData[];
-  error?: string;
-  pagination?: {
-    page: number;
-    limit: number;
-    total: number;
-    pages: number;
-  };
-}
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { projectQueries, projectMutations, type ProjectData } from '@/lib/query-functions';
+import { queryKeys } from '@/lib/query-keys';
 
 interface UseProjectsReturn {
-  projects: ProjectData[];
+  projects: ProjectData[] | undefined;
   isLoading: boolean;
   error: string | null;
-  fetchProjects: () => Promise<void>;
-  refreshProjects: () => Promise<void>;
-  createProject: (projectData: Partial<ProjectData>) => Promise<boolean>;
-  updateProject: (id: string, projectData: Partial<ProjectData>) => Promise<boolean>;
-  deleteProject: (id: string) => Promise<boolean>;
+  refetch: () => void;
+  isFetching: boolean;
+  createProject: {
+    mutate: (projectData: Partial<ProjectData>) => void;
+    isPending: boolean;
+    error: Error | null;
+  };
+  updateProject: {
+    mutate: (variables: { id: string; data: Partial<ProjectData> }) => void;
+    isPending: boolean;
+    error: Error | null;
+  };
+  deleteProject: {
+    mutate: (id: string) => void;
+    isPending: boolean;
+    error: Error | null;
+  };
 }
 
 export function useProjects(): UseProjectsReturn {
-  const [projects, setProjects] = useState<ProjectData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const fetchProjects = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      
-      const response = await fetch('/api/projects');
-      const result: ProjectApiResponse = await response.json();
+  const {
+    data: projects,
+    isLoading,
+    error,
+    refetch,
+    isFetching,
+  } = useQuery(projectQueries.all());
 
-      if (result.success && result.data) {
-        setProjects(result.data);
-      } else {
-        throw new Error(result.error || 'Failed to fetch projects');
-      }
-    } catch (error) {
-      console.error('Error fetching projects:', error);
-      setError(error instanceof Error ? error.message : 'Failed to fetch projects');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Create project mutation
+  const createProjectMutation = useMutation({
+    ...projectMutations.create,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.projects.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.home.all });
+    },
+  });
 
-  const refreshProjects = async () => {
-    await fetchProjects();
-  };
+  // Update project mutation
+  const updateProjectMutation = useMutation({
+    ...projectMutations.update,
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.projects.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.projects.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.home.all });
+    },
+  });
 
-  const createProject = async (projectData: Partial<ProjectData>): Promise<boolean> => {
-    try {
-      setError(null);
-      
-      const response = await fetch('/api/projects', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(projectData),
-      });
-
-      const result: ProjectApiResponse = await response.json();
-
-      if (result.success) {
-        await refreshProjects(); // Refresh the list after creating
-        return true;
-      } else {
-        setError(result.error || 'Failed to create project');
-        return false;
-      }
-    } catch (error) {
-      console.error('Error creating project:', error);
-      setError(error instanceof Error ? error.message : 'Failed to create project');
-      return false;
-    }
-  };
-
-  const updateProject = async (id: string, projectData: Partial<ProjectData>): Promise<boolean> => {
-    try {
-      setError(null);
-      
-      const response = await fetch(`/api/projects/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(projectData),
-      });
-
-      const result: ProjectApiResponse = await response.json();
-
-      if (result.success) {
-        await refreshProjects(); // Refresh the list after updating
-        return true;
-      } else {
-        setError(result.error || 'Failed to update project');
-        return false;
-      }
-    } catch (error) {
-      console.error('Error updating project:', error);
-      setError(error instanceof Error ? error.message : 'Failed to update project');
-      return false;
-    }
-  };
-
-  const deleteProject = async (id: string): Promise<boolean> => {
-    try {
-      setError(null);
-      
-      const response = await fetch(`/api/projects/${id}`, {
-        method: 'DELETE',
-      });
-
-      const result: ProjectApiResponse = await response.json();
-
-      if (result.success) {
-        await refreshProjects(); // Refresh the list after deleting
-        return true;
-      } else {
-        setError(result.error || 'Failed to delete project');
-        return false;
-      }
-    } catch (error) {
-      console.error('Error deleting project:', error);
-      setError(error instanceof Error ? error.message : 'Failed to delete project');
-      return false;
-    }
-  };
-
-  useEffect(() => {
-    fetchProjects();
-  }, []);
+  // Delete project mutation
+  const deleteProjectMutation = useMutation({
+    ...projectMutations.delete,
+    onSuccess: (data, id) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.projects.all });
+      queryClient.removeQueries({ queryKey: queryKeys.projects.detail(id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.home.all });
+    },
+  });
 
   return {
     projects,
     isLoading,
-    error,
-    fetchProjects,
-    refreshProjects,
-    createProject,
-    updateProject,
-    deleteProject,
+    error: error ? (error instanceof Error ? error.message : 'Failed to fetch projects') : null,
+    refetch,
+    isFetching,
+    createProject: {
+      mutate: createProjectMutation.mutate,
+      isPending: createProjectMutation.isPending,
+      error: createProjectMutation.error,
+    },
+    updateProject: {
+      mutate: updateProjectMutation.mutate,
+      isPending: updateProjectMutation.isPending,
+      error: updateProjectMutation.error,
+    },
+    deleteProject: {
+      mutate: deleteProjectMutation.mutate,
+      isPending: deleteProjectMutation.isPending,
+      error: deleteProjectMutation.error,
+    },
   };
 }
+
+// Hook for single project by ID
+interface UseProjectReturn {
+  project: ProjectData | undefined;
+  isLoading: boolean;
+  error: string | null;
+  refetch: () => void;
+  isFetching: boolean;
+}
+
+export function useProject(id: string): UseProjectReturn {
+  const {
+    data: project,
+    isLoading,
+    error,
+    refetch,
+    isFetching,
+  } = useQuery(projectQueries.byId(id));
+
+  return {
+    project,
+    isLoading,
+    error: error ? (error instanceof Error ? error.message : 'Failed to fetch project') : null,
+    refetch,
+    isFetching,
+  };
+}
+
+// Re-export types for backward compatibility
+export type { ProjectData };

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import ReactMarkdown from 'react-markdown';
@@ -14,7 +14,7 @@ import {
   FaEye,
   FaHeart
 } from 'react-icons/fa';
-import { BlogData } from '@/hooks/useBlogs';
+import { useBlogBySlug, useBlogLike } from '@/hooks/useBlogs';
 
 // Custom code block component for ReactMarkdown
 interface MarkdownCodeBlockProps extends React.HTMLAttributes<HTMLElement> {
@@ -68,57 +68,20 @@ const MarkdownCodeBlock: React.FC<MarkdownCodeBlockProps> = ({ className, childr
 export default function BlogDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const [blog, setBlog] = useState<BlogData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [likeLoading, setLikeLoading] = useState(false);
-  const [likes, setLikes] = useState(0);
-
   const slug = params.blog as string;
 
-  useEffect(() => {
-    const fetchBlog = async () => {
-      try {
-        const response = await fetch(`/api/blogs?slug=${slug}`);
-        const data = await response.json();
+  // Use TanStack Query hooks
+  const { blog, isLoading, error, isFetching } = useBlogBySlug(slug);
+  const { likeBlog, isLiking } = useBlogLike();
 
-        if (data.success && data.data && data.data.length > 0) {
-          const blogData = data.data[0];
-          setBlog(blogData);
-          setLikes(blogData.likes || 0);
-        } else {
-          setError('Blog not found');
-        }
-      } catch (err) {
-        setError('Failed to fetch blog');
-        console.error('Error fetching blog:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (slug) {
-      fetchBlog();
-    }
-  }, [slug]);
-
-  const handleUpvote = async () => {
-    if (!blog?._id || likeLoading) return;
-    setLikeLoading(true);
-    try {
-      const res = await fetch(`/api/blogs/${blog._id}/like`, { method: 'POST' });
-      const data = await res.json();
-      if (data.success && data.data?.likes !== undefined) {
-        setLikes(data.data.likes);
-      }
-    } catch (e) {
-      console.error('Failed to upvote blog:', e);
-    } finally {
-      setLikeLoading(false);
+  const handleUpvote = () => {
+    if (blog?._id && !isLiking) {
+      likeBlog(blog._id);
     }
   };
 
-  if (loading) {
+  // Show loading state only for initial load
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-[#161616] text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center justify-center">
         <div className="text-center">
@@ -152,8 +115,17 @@ export default function BlogDetailPage() {
 
   return (
     <div className="min-h-screen bg-[#161616] text-white font-sans">
-      <div className="px-3 md:px-0 py-10 flex flex-col items-center">
+      {/* Show subtle loading indicator for background fetches */}
+      {isFetching && !isLoading && (
+        <div className="fixed top-4 right-4 z-50">
+          <div className="bg-blue-600/20 border border-blue-600/50 rounded-lg px-3 py-2 flex items-center space-x-2">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-400"></div>
+            <span className="text-blue-400 text-sm">Updating...</span>
+          </div>
+        </div>
+      )}
 
+      <div className="px-3 md:px-0 py-10 flex flex-col items-center">
         <div className="w-full max-w-4xl mt-10">
           {/* Back Button */}
           <button
@@ -238,11 +210,11 @@ export default function BlogDetailPage() {
                 )}
                 <button
                   onClick={handleUpvote}
-                  disabled={likeLoading}
+                  disabled={isLiking}
                   className="flex items-center gap-1 hover:text-red-400 transition-colors cursor-pointer disabled:opacity-50"
                 >
                   <FaHeart size={16} />
-                  <span>{likes} upvotes</span>
+                  <span>{blog.likes} upvotes</span>
                 </button>
               </div>
             </div>
@@ -252,7 +224,7 @@ export default function BlogDetailPage() {
               <div className="mb-8">
                 <h3 className="text-sm font-semibold text-[#aaa] mb-3 uppercase tracking-wider">Tags</h3>
                 <div className="flex flex-wrap gap-2">
-                  {blog.tags.map((tag, index) => (
+                  {blog.tags.map((tag: string, index: number) => (
                     <span
                       key={index}
                       className="px-3 py-1 bg-[#333] text-sm rounded-full text-[#ccc] hover:bg-[#444] transition-colors"
@@ -282,13 +254,30 @@ export default function BlogDetailPage() {
               rehypePlugins={[rehypeHighlight]}
               components={{
                 code: MarkdownCodeBlock,
+                pre: ({ children }) => {
+                  // Handle pre elements directly to avoid nesting issues
+                  return <>{children}</>;
+                },
+                p: ({ children, node }) => {
+                  // Check if this paragraph contains a code block
+                  const hasCodeBlock = node?.children?.some((child: { type: string; tagName?: string }) => 
+                    child.type === 'element' && 
+                    (child.tagName === 'code' || child.tagName === 'pre')
+                  );
+                  
+                  // If it contains a code block, render as fragment to avoid invalid nesting
+                  if (hasCodeBlock) {
+                    return <div className="my-4">{children}</div>;
+                  }
+                  
+                  return <p className="mb-4 leading-relaxed text-[#ccc]">{children}</p>;
+                },
                 h1: ({ children }) => <h1 className="text-2xl md:text-3xl font-bold mt-8 mb-4 text-white border-b border-[#333] pb-2">{children}</h1>,
                 h2: ({ children }) => <h2 className="text-xl md:text-2xl font-bold mt-6 mb-3 text-white">{children}</h2>,
                 h3: ({ children }) => <h3 className="text-lg md:text-xl font-bold mt-4 mb-2 text-white">{children}</h3>,
                 h4: ({ children }) => <h4 className="text-base md:text-lg font-semibold mt-3 mb-2 text-white">{children}</h4>,
                 h5: ({ children }) => <h5 className="text-sm md:text-base font-semibold mt-2 mb-1 text-white">{children}</h5>,
                 h6: ({ children }) => <h6 className="text-xs md:text-sm font-semibold mt-2 mb-1 text-white">{children}</h6>,
-                p: ({ children }) => <p className="mb-4 leading-relaxed text-[#ccc]">{children}</p>,
                 ul: ({ children }) => <ul className="mb-4 list-disc list-inside space-y-2 text-[#ccc] pl-4">{children}</ul>,
                 ol: ({ children }) => <ol className="mb-4 list-decimal list-inside space-y-2 text-[#ccc] pl-4">{children}</ol>,
                 li: ({ children }) => <li className="leading-relaxed">{children}</li>,
