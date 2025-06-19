@@ -83,7 +83,7 @@ export default function BlogDetailPage() {
   // Show loading state only for initial load
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#161616] text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-[#161616] text-white font-sans px-3 md:px-0 pb-10 flex flex-col items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
           <p className="text-white text-lg">Loading blog...</p>
@@ -94,7 +94,7 @@ export default function BlogDetailPage() {
 
   if (error || !blog) {
     return (
-      <div className="min-h-screen bg-[#161616] text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-[#161616] text-white font-sans px-3 md:px-0 pb-10 flex flex-col items-center justify-center">
         <div className="text-center max-w-md mx-auto">
           <div className="bg-red-600/20 border border-red-600/50 rounded-lg p-6">
             <h2 className="text-red-400 text-lg font-semibold mb-2">
@@ -125,7 +125,7 @@ export default function BlogDetailPage() {
         </div>
       )}
 
-      <div className="px-3 md:px-0 py-10 flex flex-col items-center">
+      <div className="px-3 md:px-0 pb-10 flex flex-col items-center">
         <div className="w-full max-w-4xl mt-10">
           {/* Back Button */}
           <button

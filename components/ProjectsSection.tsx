@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import ProjectCard from "./ProjectCard";
 import { ProjectData } from "../hooks/useProjects";
@@ -38,7 +39,15 @@ export default function ProjectsSection({ projects }: ProjectsSectionProps) {
 
   return (
     <div className="w-full max-w-5xl mb-16">
-      <h3 className="font-semibold text-xl mb-4">Projects</h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-semibold text-xl">Projects</h3>
+        <Link 
+          href="/project"
+          className="text-sm text-[#888] hover:text-white transition-colors px-3 py-1 border border-[#333] rounded-full hover:border-[#555]"
+        >
+          View All
+        </Link>
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
         {projects.map((project, idx) => (
           <ProjectCard

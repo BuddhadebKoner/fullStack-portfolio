@@ -36,7 +36,6 @@ const BlogSchema = new Schema<IBlog>({
   author: {
     type: String,
     required: [true, 'Author is required'],
-    default: 'Admin'
   },
   tags: [{
     type: String,

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useSkills, SkillData } from '@/hooks/useSkills';
 
 interface SkillsManagementProps {
@@ -55,6 +56,18 @@ export default function SkillsManagement({ onRefresh }: SkillsManagementProps) {
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  
+  // Image error handling
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
+
+  const getIconUrl = (skill: string) => {
+    const skillName = skill.toLowerCase().replace(/\s+/g, "");
+    return `https://cdn.jsdelivr.net/gh/devicons/devicon/icons/${skillName}/${skillName}-original.svg`;
+  };
+
+  const handleImageError = (skill: string) => {
+    setFailedImages((prev) => new Set(prev).add(skill));
+  };
 
   const handleRefresh = async () => {
     await refreshSkills();
@@ -108,7 +121,9 @@ export default function SkillsManagement({ onRefresh }: SkillsManagementProps) {
   };
 
   const submitUpdate = async () => {
-    if (!selectedSkill) return;
+    if (!selectedSkill) {
+      return;
+    }
     
     setIsUpdating(true);
     try {
@@ -213,9 +228,21 @@ export default function SkillsManagement({ onRefresh }: SkillsManagementProps) {
             {skills.map((skill: SkillData, index: number) => (
               <div key={skill._id || index} className="bg-[#1a1a1a] rounded-lg p-4 border border-[#404040]">
                 <div className="flex items-center justify-between mb-2">
-                  <div>
-                    <p className="text-white font-medium">{skill.name}</p>
-                    <p className="text-[#a0a0a0] text-sm capitalize">{skill.category}</p>
+                  <div className="flex items-center gap-2">
+                    {!failedImages.has(skill.name) && (
+                      <Image
+                        src={getIconUrl(skill.name)}
+                        alt={`${skill.name} icon`}
+                        width={24}
+                        height={24}
+                        className="flex-shrink-0"
+                        onError={() => handleImageError(skill.name)}
+                      />
+                    )}
+                    <div>
+                      <p className="text-white font-medium">{skill.name}</p>
+                      <p className="text-[#a0a0a0] text-sm capitalize">{skill.category}</p>
+                    </div>
                   </div>
                   <div className="flex gap-1">
                     <button
@@ -272,13 +299,26 @@ export default function SkillsManagement({ onRefresh }: SkillsManagementProps) {
             <div className="space-y-4">
               <div>
                 <label className="block text-[#a0a0a0] text-sm mb-2">Name</label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full bg-[#1a1a1a] border border-[#404040] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-                  placeholder="Enter skill name"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full bg-[#1a1a1a] border border-[#404040] rounded-lg px-3 py-2 pl-10 text-white focus:outline-none focus:border-blue-500"
+                    placeholder="Enter skill name"
+                  />
+                  {formData.name && !failedImages.has(formData.name) && (
+                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                      <Image
+                        src={getIconUrl(formData.name)}
+                        alt={`${formData.name} icon`}
+                        width={16}
+                        height={16}
+                        onError={() => handleImageError(formData.name)}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
               
               <div>
@@ -359,13 +399,26 @@ export default function SkillsManagement({ onRefresh }: SkillsManagementProps) {
             <div className="space-y-4">
               <div>
                 <label className="block text-[#a0a0a0] text-sm mb-2">Name</label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full bg-[#1a1a1a] border border-[#404040] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-                  placeholder="Enter skill name"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full bg-[#1a1a1a] border border-[#404040] rounded-lg px-3 py-2 pl-10 text-white focus:outline-none focus:border-blue-500"
+                    placeholder="Enter skill name"
+                  />
+                  {formData.name && !failedImages.has(formData.name) && (
+                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                      <Image
+                        src={getIconUrl(formData.name)}
+                        alt={`${formData.name} icon`}
+                        width={16}
+                        height={16}
+                        onError={() => handleImageError(formData.name)}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
               
               <div>
@@ -443,10 +496,23 @@ export default function SkillsManagement({ onRefresh }: SkillsManagementProps) {
           <div className="bg-[#262626] rounded-lg border border-[#404040] p-6 w-full max-w-md mx-4">
             <h3 className="text-white text-xl font-semibold mb-4">Delete Skill</h3>
             
-            <p className="text-[#a0a0a0] mb-6">
-              Are you sure you want to delete the skill &quot;<span className="text-white font-medium">{selectedSkill.name}</span>&quot;? 
-              This action cannot be undone.
-            </p>
+            <div className="flex items-center gap-3 mb-6">
+              {!failedImages.has(selectedSkill.name) && (
+                <Image
+                  src={getIconUrl(selectedSkill.name)}
+                  alt={`${selectedSkill.name} icon`}
+                  width={32}
+                  height={32}
+                  onError={() => handleImageError(selectedSkill.name)}
+                />
+              )}
+              <div>
+                <p className="text-[#a0a0a0]">
+                  Are you sure you want to delete the skill &quot;<span className="text-white font-medium">{selectedSkill.name}</span>&quot;? 
+                </p>
+                <p className="text-[#a0a0a0] text-sm mt-1">This action cannot be undone.</p>
+              </div>
+            </div>
             
             <div className="flex gap-3">
               <button

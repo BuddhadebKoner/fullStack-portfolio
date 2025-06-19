@@ -1,5 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { projectQueries, projectMutations, type ProjectData } from '@/lib/query-functions';
+import { 
+  projectQueries, 
+  projectMutations, 
+  type ProjectData, 
+  type PaginationParams, 
+  type PaginatedResponse 
+} from '@/lib/query-functions';
 import { queryKeys } from '@/lib/query-keys';
 
 interface UseProjectsReturn {
@@ -23,6 +29,21 @@ interface UseProjectsReturn {
     isPending: boolean;
     error: Error | null;
   };
+}
+
+interface UseProjectsPaginatedReturn {
+  projects: ProjectData[] | undefined;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  } | undefined;
+  isLoading: boolean;
+  error: string | null;
+  refetch: () => void;
+  isFetching: boolean;
+  isPreviousData: boolean;
 }
 
 export function useProjects(): UseProjectsReturn {
@@ -116,5 +137,27 @@ export function useProject(id: string): UseProjectReturn {
   };
 }
 
+// Hook for paginated projects
+export function useProjectsPaginated(params: PaginationParams): UseProjectsPaginatedReturn {
+  const {
+    data: result,
+    isLoading,
+    error,
+    refetch,
+    isFetching,
+    isPlaceholderData,
+  } = useQuery(projectQueries.paginated(params));
+
+  return {
+    projects: result?.data,
+    pagination: result?.pagination,
+    isLoading,
+    error: error ? (error instanceof Error ? error.message : 'Failed to fetch projects') : null,
+    refetch,
+    isFetching,
+    isPreviousData: isPlaceholderData,
+  };
+}
+
 // Re-export types for backward compatibility
-export type { ProjectData };
+export type { ProjectData, PaginationParams, PaginatedResponse };

@@ -90,125 +90,125 @@ export default function ProjectPage({ params }: ProjectPageProps) {
       )}
 
       <div className="px-3 md:px-0 py-10 flex flex-col items-center">
-        <div className="w-full max-w-4xl mt-10">
-        {/* Header with Back Button */}
-        <div className="mb-6">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-2 text-[#aaa] hover:text-white transition-colors"
-          >
-            <FiArrowLeft className="w-5 h-5" />
-            Back
-          </button>
-        </div>
+        <div className="w-full max-w-4xl">
+          {/* Header with Back Button */}
+          <div className="mb-6">
+            <button
+              onClick={() => router.push('/')}
+              className="flex items-center gap-2 text-[#aaa] hover:text-white transition-colors cursor-pointer"
+            >
+              <FiArrowLeft className="w-5 h-5" />
+              Back
+            </button>
+          </div>
 
-        {/* Main Content */}
-        <div className="space-y-8">
-          {/* Project Header */}
-          <div className="space-y-4">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">{project.title}</h1>
-            <p className="text-lg md:text-xl text-[#ccc] leading-relaxed mb-6">{project.desc}</p>
-            
-            {/* Meta Information */}
-            <div className="flex flex-wrap items-center gap-4 text-sm text-[#aaa] mb-6 pb-6 border-b border-[#333]">
-              <span>Category: <span className="text-[#ccc]">{project.category}</span></span>
-              <span>•</span>
-              <span>Order: <span className="text-[#ccc]">{project.order}</span></span>
-              <span>•</span>
-              <span className={project.featured ? 'text-yellow-400' : 'text-[#ccc]'}>
-                {project.featured ? '🌟 Featured' : 'Regular'}
-              </span>
-              <span>•</span>
-              <span className={project.isPublished ? 'text-green-400' : 'text-red-400'}>
-                {project.isPublished ? '✅ Published' : '❌ Draft'}
-              </span>
+          {/* Main Content */}
+          <div className="space-y-8">
+            {/* Project Header */}
+            <div className="space-y-4">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">{project.title}</h1>
+              <p className="text-lg md:text-xl text-[#ccc] leading-relaxed mb-6">{project.desc}</p>
+
+              {/* Meta Information */}
+              <div className="flex flex-wrap items-center gap-4 text-sm text-[#aaa] mb-6 pb-6 border-b border-[#333]">
+                <span>Category: <span className="text-[#ccc]">{project.category}</span></span>
+                <span>•</span>
+                <span>Order: <span className="text-[#ccc]">{project.order}</span></span>
+                <span>•</span>
+                <span className={project.featured ? 'text-yellow-400' : 'text-[#ccc]'}>
+                  {project.featured ? '🌟 Featured' : 'Regular'}
+                </span>
+                <span>•</span>
+                <span className={project.isPublished ? 'text-green-400' : 'text-red-400'}>
+                  {project.isPublished ? '✅ Published' : '❌ Draft'}
+                </span>
+              </div>
+
+              {/* Technologies */}
+              {project.technologies && project.technologies.length > 0 && (
+                <div className="space-y-2 mb-8">
+                  <h3 className="text-sm font-semibold text-[#aaa] mb-3 uppercase tracking-wider">Technologies</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {project.technologies.map((tech: string, idx: number) => (
+                      <span
+                        key={idx}
+                        className="px-3 py-1 bg-[#333] text-sm rounded-full text-[#ccc] hover:bg-[#444] transition-colors"
+                      >
+                        #{tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-4 mb-8">
+                {project.githubUrl && (
+                  <a
+                    href={project.githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-2 bg-[#333] hover:bg-[#444] text-white rounded-lg transition-colors"
+                  >
+                    <FiGithub className="w-4 h-4" />
+                    <span>GitHub</span>
+                  </a>
+                )}
+                {project.liveUrl && (
+                  <a
+                    href={project.liveUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                  >
+                    <FiExternalLink className="w-4 h-4" />
+                    <span>Live Demo</span>
+                  </a>
+                )}
+              </div>
             </div>
 
-            {/* Technologies */}
-            {project.technologies && project.technologies.length > 0 && (
-              <div className="space-y-2 mb-8">
-                <h3 className="text-sm font-semibold text-[#aaa] mb-3 uppercase tracking-wider">Technologies</h3>
-                <div className="flex flex-wrap gap-2">
-                  {project.technologies.map((tech: string, idx: number) => (
-                    <span 
-                      key={idx} 
-                      className="px-3 py-1 bg-[#333] text-sm rounded-full text-[#ccc] hover:bg-[#444] transition-colors"
-                    >
-                      #{tech}
-                    </span>
-                  ))}
-                </div>
+            {/* Project Image */}
+            {project.img && (
+              <div className="mb-6 rounded-lg overflow-hidden">
+                <Image
+                  width={800}
+                  height={450}
+                  src={project.img}
+                  alt={project.title}
+                  className="w-full h-64 md:h-80 object-cover"
+                  priority
+                />
               </div>
             )}
 
-            {/* Action Buttons */}
-            <div className="flex gap-4 mb-8">
-              {project.githubUrl && (
-                <a 
-                  href={project.githubUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="flex items-center gap-2 px-4 py-2 bg-[#333] hover:bg-[#444] text-white rounded-lg transition-colors"
-                >
-                  <FiGithub className="w-4 h-4" />
-                  <span>GitHub</span>
-                </a>
-              )}
-              {project.liveUrl && (
-                <a 
-                  href={project.liveUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                >
-                  <FiExternalLink className="w-4 h-4" />
-                  <span>Live Demo</span>
-                </a>
-              )}
-            </div>
-          </div>
-
-          {/* Project Image */}
-          {project.img && (
-            <div className="mb-6 rounded-lg overflow-hidden">
-              <Image
-                width={800}
-                height={450}
-                src={project.img}
-                alt={project.title}
-                className="w-full h-64 md:h-80 object-cover"
-                priority
-              />
-            </div>
-          )}
-
-          {/* Project Details */}
-          <div className="bg-[#1a1a1a] rounded-xl p-6">
-            <h3 className="text-xl font-semibold mb-4">Project Details</h3>
-            <div className="grid md:grid-cols-2 gap-6 text-sm">
-              <div>
-                <h4 className="font-semibold text-[#aaa] mb-2">Created</h4>
-                <p className="text-[#ccc]">
-                  {project.createdAt ? new Date(project.createdAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  }) : 'N/A'}
-                </p>
-              </div>
-              <div>
-                <h4 className="font-semibold text-[#aaa] mb-2">Last Updated</h4>
-                <p className="text-[#ccc]">
-                  {project.updatedAt ? new Date(project.updatedAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  }) : 'N/A'}
-                </p>
+            {/* Project Details */}
+            <div className="bg-[#1a1a1a] rounded-xl p-6">
+              <h3 className="text-xl font-semibold mb-4">Project Details</h3>
+              <div className="grid md:grid-cols-2 gap-6 text-sm">
+                <div>
+                  <h4 className="font-semibold text-[#aaa] mb-2">Created</h4>
+                  <p className="text-[#ccc]">
+                    {project.createdAt ? new Date(project.createdAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    }) : 'N/A'}
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-[#aaa] mb-2">Last Updated</h4>
+                  <p className="text-[#ccc]">
+                    {project.updatedAt ? new Date(project.updatedAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    }) : 'N/A'}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
         </div>
       </div>
     </div>

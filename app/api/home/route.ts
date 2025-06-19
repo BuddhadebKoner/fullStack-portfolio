@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
       await connectToDatabase();
 
       const { searchParams } = new URL(request.url);
-      const limit = parseInt(searchParams.get('limit') || '10');
+      const limit = parseInt(searchParams.get('limit') || '5');
 
       const [
          publicProfile,

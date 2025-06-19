@@ -64,8 +64,6 @@ export default function Home() {
   }));
   const projects = homeData?.projects || [];
 
-  // console.log("Home Data:", homeData);
-
   return (
     <div className="min-h-screen bg-[#161616] text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center">
       {/* Show subtle loading indicator for background fetches */}

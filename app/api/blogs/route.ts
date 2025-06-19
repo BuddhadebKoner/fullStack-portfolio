@@ -3,6 +3,7 @@ import { connectToDatabase } from '@/lib/db';
 import Blog from '@/models/blog.model';
 import { BlogData } from '@/types/blog';
 import { auth } from '@clerk/nextjs/server';
+import { Profile } from '@/models';
 
 // Define interface for blog query
 interface BlogQuery {
@@ -21,11 +22,11 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const slug = searchParams.get('slug');
-    
+
     // If slug is provided, fetch single blog
     if (slug) {
       const blog = await Blog.findOne({ slug, isPublished: true }).lean();
-      
+
       if (!blog) {
         return NextResponse.json(
           { success: false, error: 'Blog not found' },
@@ -35,7 +36,7 @@ export async function GET(request: NextRequest) {
 
       // Increment views
       await Blog.updateOne({ slug }, { $inc: { views: 1 } });
-      
+
       // Type the blog object properly
       const singleBlog = Array.isArray(blog) ? blog[0] : blog;
       const blogWithViews: BlogData = {
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest) {
         createdAt: singleBlog.createdAt ?? '',
         updatedAt: singleBlog.updatedAt ?? ''
       };
-      
+
       return NextResponse.json({
         success: true,
         data: [blogWithViews]
@@ -132,6 +133,18 @@ export async function POST(request: NextRequest) {
 
     await connectToDatabase();
 
+    // find user profile
+    const userProfile = await Profile.findOne({ userId })
+      .select('firstName lastName')
+      .lean() as { firstName: string; lastName: string } | null;
+    
+    if (!userProfile) {
+      return NextResponse.json(
+        { success: false, error: 'User profile not found' },
+        { status: 404 }
+      );
+    }
+
     const body = await request.json();
     const { title, desc, content, tags = [], imageUrl, isPublished = false } = body;
 
@@ -166,7 +179,7 @@ export async function POST(request: NextRequest) {
       imageUrl,
       slug,
       isPublished,
-      author: 'Admin' // You can get this from user profile
+      author: `${userProfile.firstName} ${userProfile.lastName}`,
     });
 
     await blog.save();

@@ -1,4 +1,4 @@
-import { queryKeys } from './query-keys';
+  import { queryKeys } from './query-keys';
 
 // Types from existing useHomeData.ts
 export interface HomeProfile {
@@ -208,8 +208,28 @@ interface ProjectApiResponse {
   };
 }
 
+// Pagination types
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  published?: boolean;
+  tags?: string[];
+  sort?: string;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}
+
 /**
- * Fetch all blogs
+ * Fetch all blogs (without pagination - for backward compatibility)
  */
 export const fetchBlogs = async (): Promise<BlogData[]> => {
   const response = await fetch('/api/blogs', {
@@ -230,6 +250,59 @@ export const fetchBlogs = async (): Promise<BlogData[]> => {
   }
 
   return Array.isArray(result.data) ? result.data : [result.data];
+};
+
+/**
+ * Fetch blogs with pagination
+ */
+export const fetchBlogsPaginated = async (params: PaginationParams = {}): Promise<PaginatedResponse<BlogData>> => {
+  const searchParams = new URLSearchParams();
+  
+  if (params.page) {
+    searchParams.set('page', params.page.toString());
+  }
+  if (params.limit) {
+    searchParams.set('limit', params.limit.toString());
+  }
+  if (params.search) {
+    searchParams.set('search', params.search);
+  }
+  if (params.published !== undefined) {
+    searchParams.set('published', params.published.toString());
+  }
+  if (params.tags && params.tags.length > 0) {
+    searchParams.set('tags', params.tags.join(','));
+  }
+  if (params.sort) {
+    searchParams.set('sort', params.sort);
+  }
+
+  const response = await fetch(`/api/blogs?${searchParams.toString()}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const result = await response.json();
+
+  if (!result.success) {
+    throw new Error(result.error || 'Failed to fetch blogs');
+  }
+
+  return {
+    data: Array.isArray(result.data) ? result.data : [result.data],
+    pagination: result.pagination || {
+      page: 1,
+      limit: 10,
+      total: Array.isArray(result.data) ? result.data.length : 1,
+      pages: 1
+    }
+  };
 };
 
 /**
@@ -286,7 +359,7 @@ export const fetchBlogBySlug = async (slug: string): Promise<BlogData> => {
 };
 
 /**
- * Fetch all projects
+ * Fetch all projects (without pagination - for backward compatibility)
  */
 export const fetchProjects = async (): Promise<ProjectData[]> => {
   const response = await fetch('/api/projects', {
@@ -307,6 +380,56 @@ export const fetchProjects = async (): Promise<ProjectData[]> => {
   }
 
   return result.data;
+};
+
+/**
+ * Fetch projects with pagination
+ */
+export const fetchProjectsPaginated = async (params: PaginationParams = {}): Promise<PaginatedResponse<ProjectData>> => {
+  const searchParams = new URLSearchParams();
+  
+  if (params.page) {
+    searchParams.set('page', params.page.toString());
+  }
+  if (params.limit) {
+    searchParams.set('limit', params.limit.toString());
+  }
+  if (params.search) {
+    searchParams.set('search', params.search);
+  }
+  if (params.published !== undefined) {
+    searchParams.set('published', params.published.toString());
+  }
+  if (params.sort) {
+    searchParams.set('sort', params.sort);
+  }
+
+  const response = await fetch(`/api/projects?${searchParams.toString()}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const result = await response.json();
+
+  if (!result.success) {
+    throw new Error(result.error || 'Failed to fetch projects');
+  }
+
+  return {
+    data: result.data || [],
+    pagination: result.pagination || {
+      page: 1,
+      limit: 10,
+      total: result.data ? result.data.length : 0,
+      pages: 1
+    }
+  };
 };
 
 /**
@@ -373,6 +496,19 @@ export const blogQueries = {
     refetchOnReconnect: true,
   }),
 
+  // Get blogs with pagination
+  paginated: (params: PaginationParams) => ({
+    queryKey: queryKeys.blogs.paginated(params),
+    queryFn: () => fetchBlogsPaginated(params),
+    staleTime: 2 * 60 * 1000, // 2 minutes for blog lists
+    gcTime: 5 * 60 * 1000, // 5 minutes cache time
+    retry: 3,
+    retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    keepPreviousData: true, // Keep previous data while fetching new page
+  }),
+
   // Get blog by ID
   byId: (id: string) => ({
     queryKey: queryKeys.blogs.detail(id),
@@ -414,6 +550,19 @@ export const projectQueries = {
     retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30000),
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,
+  }),
+
+  // Get projects with pagination
+  paginated: (params: PaginationParams) => ({
+    queryKey: queryKeys.projects.paginated(params),
+    queryFn: () => fetchProjectsPaginated(params),
+    staleTime: 5 * 60 * 1000, // 5 minutes for project lists
+    gcTime: 10 * 60 * 1000, // 10 minutes cache time
+    retry: 3,
+    retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    keepPreviousData: true, // Keep previous data while fetching new page
   }),
 
   // Get project by ID

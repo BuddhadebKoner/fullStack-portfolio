@@ -6,6 +6,16 @@
 // Define a type for filter objects
 type FilterParams = Record<string, string | number | boolean | undefined>;
 
+// Define pagination params type
+type PaginationParams = {
+  page?: number;
+  limit?: number;
+  search?: string;
+  published?: boolean;
+  tags?: string[];
+  sort?: string;
+};
+
 export const queryKeys = {
   // Home page data
   home: {
@@ -25,6 +35,7 @@ export const queryKeys = {
     all: ['blogs'] as const,
     lists: () => [...queryKeys.blogs.all, 'list'] as const,
     list: (filters: FilterParams) => [...queryKeys.blogs.lists(), filters] as const,
+    paginated: (params: PaginationParams) => [...queryKeys.blogs.all, 'paginated', params] as const,
     details: () => [...queryKeys.blogs.all, 'detail'] as const,
     detail: (id: string) => [...queryKeys.blogs.details(), id] as const,
   },
@@ -34,6 +45,7 @@ export const queryKeys = {
     all: ['projects'] as const,
     lists: () => [...queryKeys.projects.all, 'list'] as const,
     list: (filters: FilterParams) => [...queryKeys.projects.lists(), filters] as const,
+    paginated: (params: PaginationParams) => [...queryKeys.projects.all, 'paginated', params] as const,
     details: () => [...queryKeys.projects.all, 'detail'] as const,
     detail: (id: string) => [...queryKeys.projects.details(), id] as const,
   },

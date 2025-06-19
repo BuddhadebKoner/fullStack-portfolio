@@ -1,5 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { blogQueries, blogMutations, type BlogData } from '@/lib/query-functions';
+import { 
+  blogQueries, 
+  blogMutations, 
+  type BlogData, 
+  type PaginationParams, 
+  type PaginatedResponse 
+} from '@/lib/query-functions';
 import { queryKeys } from '@/lib/query-keys';
 
 interface UseBlogsReturn {
@@ -23,6 +29,21 @@ interface UseBlogsReturn {
     isPending: boolean;
     error: Error | null;
   };
+}
+
+interface UseBlogsPaginatedReturn {
+  blogs: BlogData[] | undefined;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  } | undefined;
+  isLoading: boolean;
+  error: string | null;
+  refetch: () => void;
+  isFetching: boolean;
+  isPreviousData: boolean;
 }
 
 export function useBlogs(): UseBlogsReturn {
@@ -178,5 +199,27 @@ export function useBlogLike(): UseBlogLikeReturn {
   };
 }
 
+// Hook for paginated blogs
+export function useBlogsPaginated(params: PaginationParams): UseBlogsPaginatedReturn {
+  const {
+    data: result,
+    isLoading,
+    error,
+    refetch,
+    isFetching,
+    isPlaceholderData,
+  } = useQuery(blogQueries.paginated(params));
+
+  return {
+    blogs: result?.data,
+    pagination: result?.pagination,
+    isLoading,
+    error: error ? (error instanceof Error ? error.message : 'Failed to fetch blogs') : null,
+    refetch,
+    isFetching,
+    isPreviousData: isPlaceholderData,
+  };
+}
+
 // Re-export types for backward compatibility
-export type { BlogData };
+export type { BlogData, PaginationParams, PaginatedResponse };
