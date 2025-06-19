@@ -1,6 +1,8 @@
 import { FaPaperPlane } from "react-icons/fa";
 import { HomeProfile } from "@/hooks/useHomeData";
 import { useChat } from "./ChatLayout";
+import { AnimatedTooltip } from "./ui/animated-tooltip";
+import { codingBuddy } from "@/lib/constant";
 
 interface HeaderProps {
   profile?: HomeProfile | null;
@@ -8,7 +10,7 @@ interface HeaderProps {
 
 export default function Header({ profile }: HeaderProps) {
   const { handleChatToggle } = useChat();
-  
+
   const displayName = profile?.firstName && profile?.lastName
     ? `${profile.firstName} ${profile.lastName}`
     : "Buddhadeb Koner";
@@ -22,6 +24,14 @@ export default function Header({ profile }: HeaderProps) {
       <p className="leading-relaxed mb-6 text-[#e0e0e0]">
         {displayBio}
       </p>
+
+      <p className="text-lg md:text-xl font-semibold mb-4 text-[#e0e0e0]">
+        Coding Buddys
+      </p>
+      <div className="flex  mb-10 w-full">
+        <AnimatedTooltip items={codingBuddy} />
+      </div>
+
       <div className="flex gap-3 mb-10 flex-wrap">
         {profile?.resumeUrl ? (
           <a

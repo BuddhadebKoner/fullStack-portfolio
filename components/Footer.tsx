@@ -19,7 +19,7 @@ export default function Footer({ year = 2025 }: FooterProps) {
 
   return (
     <>
-      <footer className="w-full border-t border-gray-800 mt-auto">
+      <footer className="w-full border-t border-gray-800 mt-auto bg-[#161616]">
         <div className="max-w-5xl mx-auto px-4 py-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="text-center sm:text-left">

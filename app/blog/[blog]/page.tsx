@@ -15,6 +15,7 @@ import {
   FaHeart
 } from 'react-icons/fa';
 import { useBlogBySlug, useBlogLike } from '@/hooks/useBlogs';
+import { CodeSectionForBlog } from '@/components/CodeSectionForBlog';
 
 // Custom code block component for ReactMarkdown
 interface MarkdownCodeBlockProps extends React.HTMLAttributes<HTMLElement> {
@@ -22,17 +23,6 @@ interface MarkdownCodeBlockProps extends React.HTMLAttributes<HTMLElement> {
 }
 
 const MarkdownCodeBlock: React.FC<MarkdownCodeBlockProps> = ({ className, children, inline, ...props }) => {
-  const codeRef = React.useRef<HTMLPreElement>(null);
-  const [copied, setCopied] = React.useState(false);
-
-  const handleCopy = () => {
-    if (codeRef.current) {
-      navigator.clipboard.writeText(codeRef.current.innerText);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1200);
-    }
-  };
-
   if (inline) {
     return (
       <code
@@ -44,24 +34,17 @@ const MarkdownCodeBlock: React.FC<MarkdownCodeBlockProps> = ({ className, childr
     );
   }
 
+  // Extract language from className (e.g., "language-javascript" -> "javascript")
+  const language = className?.replace('language-', '') || 'text';
+  const codeString = String(children).replace(/\n$/, '');
+
+  // Use CodeSectionForBlog for code blocks
   return (
-    <div className="relative group my-4">
-      <pre
-        ref={codeRef}
-        className={`${className} rounded-lg p-4 bg-[#282828] border border-[#404040] overflow-x-auto text-sm`}
-        {...props}
-      >
-        <code className="text-[#f8f8f2] font-mono">{children}</code>
-      </pre>
-      <button
-        type="button"
-        onClick={handleCopy}
-        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-[#404040] border border-[#555] text-xs px-2 py-1 rounded text-[#ccc] hover:bg-[#505050] cursor-pointer"
-        aria-label="Copy code"
-      >
-        {copied ? 'Copied!' : 'Copy'}
-      </button>
-    </div>
+    <CodeSectionForBlog
+      code={codeString}
+      language={language}
+      filename={`example.${language}`}
+    />
   );
 };
 
