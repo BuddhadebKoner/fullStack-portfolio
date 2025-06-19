@@ -103,7 +103,7 @@ export default function BlogDetailPage() {
             <p className="text-red-300 mb-4">{error || 'The requested blog could not be found.'}</p>
             <button
               onClick={() => router.push('/')}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors cursor-pointer"
             >
               Go Back Home
             </button>
@@ -129,8 +129,8 @@ export default function BlogDetailPage() {
         <div className="w-full max-w-4xl mt-10">
           {/* Back Button */}
           <button
-            onClick={() => router.back()}
-            className="mb-6 flex items-center gap-2 text-[#aaa] hover:text-white transition-colors"
+            onClick={() => router.push('/')}
+            className="mb-6 flex items-center gap-2 text-[#aaa] hover:text-white transition-colors cursor-pointer"
           >
             <FaArrowLeft size={20} />
             Back
@@ -239,8 +239,8 @@ export default function BlogDetailPage() {
             {/* Publication Status */}
             <div className="mb-8">
               <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${blog.isPublished
-                  ? 'bg-green-600/20 text-green-400 border border-green-600/50'
-                  : 'bg-yellow-600/20 text-yellow-400 border border-yellow-600/50'
+                ? 'bg-green-600/20 text-green-400 border border-green-600/50'
+                : 'bg-yellow-600/20 text-yellow-400 border border-yellow-600/50'
                 }`}>
                 {blog.isPublished ? '✓ Published' : '⏳ Draft'}
               </span>
@@ -260,16 +260,16 @@ export default function BlogDetailPage() {
                 },
                 p: ({ children, node }) => {
                   // Check if this paragraph contains a code block
-                  const hasCodeBlock = node?.children?.some((child: { type: string; tagName?: string }) => 
-                    child.type === 'element' && 
+                  const hasCodeBlock = node?.children?.some((child: { type: string; tagName?: string }) =>
+                    child.type === 'element' &&
                     (child.tagName === 'code' || child.tagName === 'pre')
                   );
-                  
+
                   // If it contains a code block, render as fragment to avoid invalid nesting
                   if (hasCodeBlock) {
                     return <div className="my-4">{children}</div>;
                   }
-                  
+
                   return <p className="mb-4 leading-relaxed text-[#ccc]">{children}</p>;
                 },
                 h1: ({ children }) => <h1 className="text-2xl md:text-3xl font-bold mt-8 mb-4 text-white border-b border-[#333] pb-2">{children}</h1>,
