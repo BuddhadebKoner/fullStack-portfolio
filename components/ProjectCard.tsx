@@ -34,31 +34,32 @@ export default function ProjectCard({ title, desc, img, index, onClick }: Projec
 
   return (
     <div
-      className="bg-[#232323] rounded-xl p-4 border border-[#232323] flex flex-col h-64 transition hover:shadow-lg cursor-pointer"
+      className="glass-card rounded-xl p-2 flex flex-col h-64 transition cursor-pointer relative overflow-hidden"
       onClick={onClick}
     >
-      <div className="rounded-lg overflow-hidden h-28 w-full mb-3 bg-[#111] flex items-center justify-center">
+      <div className="glass-grid-pattern opacity-10" />
+      <div className="rounded-lg overflow-hidden w-full mb-3 bg-[#111] flex items-center justify-center relative z-10">
         <Image
           src={img}
           alt={title}
-          className="object-cover w-full h-full"
+          className="w-full h-full"
           width={200}
           height={100}
           unoptimized
           loading="lazy"
         />
       </div>
-      <div>
+      <div className="relative z-10">
         <h4 className="font-semibold mb-1 text-white">
           <PointerHighlight
             rectangleClassName={highlightProps.rectangleClassName}
             pointerClassName={highlightProps.pointerClassName}
             containerClassName="inline-block"
           >
-            <span className="relative z-10 p-5">{title}</span>
+            <span className="relative z-10 p-5" style={{ color: 'var(--main-primary)' }}>{title}</span>
           </PointerHighlight>
         </h4>
-        <p className="text-[#e0e0e0] text-sm">{desc}</p>
+        <p className="text-[#e0e0e0] text-sm">{desc} ...</p>
       </div>
     </div>
   );

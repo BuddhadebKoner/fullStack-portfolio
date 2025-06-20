@@ -3,6 +3,47 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Glassmorphism Theme Variables */
+:root {
+  /* Main Colors */
+  --main-primary: #ff8163;
+  --main-secondary: #d97058;
+  --max-bg: #2c2025;
+  
+  /* Glassmorphism Variables */
+  --glass-bg: rgba(255, 129, 99, 0.08);
+  --glass-border: rgba(255, 129, 99, 0.2);
+  --glass-shadow: rgba(255, 129, 99, 0.15);
+  --glass-backdrop: blur(20px);
+  
+  /* Card Glass Variables */
+  --card-glass-bg: rgba(255, 255, 255, 0.03);
+  --card-glass-border: rgba(255, 255, 255, 0.08);
+  --card-glass-shadow: rgba(0, 0, 0, 0.1);
+  
+  /* Button Glass Variables */
+  --button-glass-bg: rgba(255, 129, 99, 0.12);
+  --button-glass-hover-bg: rgba(255, 129, 99, 0.2);
+  --button-glass-border: rgba(255, 129, 99, 0.25);
+  
+  /* Enhanced Glass Effects */
+  --glass-highlight: rgba(255, 255, 255, 0.1);
+  --glass-highlight-hover: rgba(255, 255, 255, 0.15);
+  
+  /* Chat-specific Glass Variables for better readability */
+  --chat-glass-bg: rgba(44, 32, 37, 0.85);
+  --chat-message-bg: rgba(255, 255, 255, 0.08);
+  --chat-user-message-bg: rgba(255, 129, 99, 0.15);
+}
+
+/* Dark theme adjustments */
+.dark {
+  --card-glass-bg: rgba(255, 255, 255, 0.02);
+  --card-glass-border: rgba(255, 255, 255, 0.05);
+  --button-glass-bg: rgba(255, 129, 99, 0.08);
+  --button-glass-hover-bg: rgba(255, 129, 99, 0.15);
+}
+
 @theme inline {
   /* Configure your theme variables here */
   --font-display: "Inter", "sans-serif";
@@ -132,4 +173,158 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Glassmorphism Utility Classes */
+.glass-card {
+  background: var(--card-glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--card-glass-border);
+  box-shadow: 
+    0 8px 32px var(--card-glass-shadow),
+    inset 0 1px 0 var(--glass-highlight);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Chat-specific glassmorphism for better readability */
+.chat-glass-container {
+  background: var(--chat-glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--card-glass-border);
+  box-shadow: 
+    0 8px 32px var(--card-glass-shadow),
+    inset 0 1px 0 var(--glass-highlight);
+  position: relative;
+  overflow: hidden;
+}
+
+.chat-message-bubble {
+  background: var(--chat-message-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--card-glass-border);
+}
+
+.chat-user-message-bubble {
+  background: var(--chat-user-message-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--button-glass-border);
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--glass-highlight) 0%, transparent 50%, var(--glass-highlight) 100%);
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.glass-card:hover {
+  border-color: var(--glass-border);
+  box-shadow: 
+    0 12px 48px var(--glass-shadow),
+    inset 0 1px 0 var(--glass-highlight-hover);
+  transform: translateY(-2px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-button {
+  background: var(--button-glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--button-glass-border);
+  box-shadow: 
+    0 4px 16px var(--glass-shadow),
+    inset 0 1px 0 var(--glass-highlight);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-button:hover {
+  background: var(--button-glass-hover-bg);
+  border-color: var(--main-primary);
+  box-shadow: 
+    0 8px 32px var(--glass-shadow),
+    inset 0 1px 0 var(--glass-highlight-hover);
+  transform: translateY(-2px);
+}
+
+.glass-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--glass-highlight) 0%, transparent 50%, var(--glass-highlight) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.glass-button:hover::before {
+  opacity: 0.5;
+}
+
+.glass-button:active {
+  transform: translateY(0px);
+  box-shadow: 
+    0 4px 16px var(--glass-shadow),
+    inset 0 1px 0 var(--glass-highlight);
+}
+
+.glass-grid-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 20px 20px;
+  mask-image: linear-gradient(0deg, white, rgba(255, 255, 255, 0.6));
+  -webkit-mask-image: linear-gradient(0deg, white, rgba(255, 255, 255, 0.6));
+}
+
+/* Enhanced background effects */
+.glass-background {
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, var(--main-primary) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, var(--main-secondary) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  opacity: 0.3;
+  animation: backgroundShift 20s ease-in-out infinite;
+}
+
+@keyframes backgroundShift {
+  0%, 100% { 
+    transform: scale(1) rotate(0deg);
+    opacity: 0.3;
+  }
+  50% { 
+    transform: scale(1.1) rotate(2deg);
+    opacity: 0.4;
+  }
+}
+
+/* Scrollbar styling for glassmorphism */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--card-glass-bg);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--button-glass-bg);
+  border-radius: 4px;
+  border: 1px solid var(--button-glass-border);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--button-glass-hover-bg);
 }

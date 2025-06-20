@@ -69,10 +69,24 @@ export async function GET(request: NextRequest) {
             .limit(limit)
             .lean(),
 
-         Project.find({ isPublished: true })
-            .select('title desc img technologies githubUrl liveUrl category featured order')
-            .sort({ featured: -1, order: 1, createdAt: -1 })
-            .lean(),
+         Project.aggregate([
+            { $match: { isPublished: true } },
+            {
+               $project: {
+                  title: 1,
+                  desc: { $substr: ["$desc", 0, 100] }, 
+                  img: 1,
+                  technologies: 1,
+                  githubUrl: 1,
+                  liveUrl: 1,
+                  category: 1,
+                  featured: 1,
+                  order: 1,
+                  createdAt: 1
+               }
+            },
+            { $sort: { featured: -1, order: 1, createdAt: -1 } }
+         ]),
 
          Skill.find({ isVisible: true })
             .select('name category level order')
@@ -98,7 +112,7 @@ export async function GET(request: NextRequest) {
 
       const projectsData: ProjectData[] = (publishedProjects as Array<Partial<ProjectData>>).map((project) => ({
          title: project.title ?? '',
-         desc: project.desc ?? '',
+         desc: (project.desc ?? '').substring(0, 100) + (project.desc && project.desc.length > 100 ? '...' : ''),
          img: project.img ?? '',
          technologies: project.technologies ?? [],
          githubUrl: project.githubUrl ?? '',

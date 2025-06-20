@@ -38,12 +38,12 @@ export default function ProjectsSection({ projects }: ProjectsSectionProps) {
   };
 
   return (
-    <div className="w-full max-w-5xl mb-16">
+    <div className="w-full max-w-5xl mb-16 relative z-10">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-xl">Projects</h3>
+        <h3 className="font-semibold text-xl" style={{ color: 'var(--main-primary)' }}>Projects</h3>
         <Link 
           href="/project"
-          className="text-sm text-[#888] hover:text-white transition-colors px-3 py-1 border border-[#333] rounded-full hover:border-[#555]"
+          className="glass-button text-sm px-3 py-1 rounded-full text-white transition-colors"
         >
           View All
         </Link>

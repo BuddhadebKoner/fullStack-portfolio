@@ -44,27 +44,37 @@ export default function AllProjectsPage() {
 
   if (isLoading && !projects && !searchQuery) {
     return (
-      <div className="min-h-screen bg-[#161616] text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center">
-        <div className="w-full max-w-6xl">
+      <div 
+        className="min-h-screen text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center relative"
+        style={{ backgroundColor: 'var(--max-bg)' }}
+      >
+        <div className="glass-background" />
+        <div className="fixed inset-0 opacity-20">
+          <div className="glass-grid-pattern" />
+        </div>
+        <div className="w-full max-w-6xl relative z-10">
           {/* Header */}
           <div className="mb-8">
             <Link 
               href="/" 
-              className="inline-flex items-center text-[#888] hover:text-white transition-colors mb-4"
+              className="glass-button inline-flex items-center px-3 py-2 rounded-lg transition-colors mb-4 text-white"
             >
               <svg width="20" height="20" fill="none" className="mr-2">
                 <path d="M13 16l-5-5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               Back to Home
             </Link>
-            <h1 className="text-3xl font-bold mb-2">All Projects</h1>
+            <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--main-primary)' }}>All Projects</h1>
             <p className="text-[#888]">Explore my complete portfolio of work</p>
           </div>
 
           {/* Loading State */}
           <div className="text-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p className="text-white text-lg">Loading projects...</p>
+            <div className="glass-card p-8 rounded-xl relative overflow-hidden">
+              <div className="glass-grid-pattern opacity-10" />
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4 relative z-10" style={{ borderColor: 'var(--main-primary)' }}></div>
+              <p className="text-white text-lg relative z-10">Loading projects...</p>
+            </div>
           </div>
         </div>
       </div>
@@ -73,33 +83,41 @@ export default function AllProjectsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#161616] text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center">
-        <div className="w-full max-w-6xl">
+      <div 
+        className="min-h-screen text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center relative"
+        style={{ backgroundColor: 'var(--max-bg)' }}
+      >
+        <div className="glass-background" />
+        <div className="fixed inset-0 opacity-20">
+          <div className="glass-grid-pattern" />
+        </div>
+        <div className="w-full max-w-6xl relative z-10">
           {/* Header */}
           <div className="mb-8">
             <Link 
               href="/" 
-              className="inline-flex items-center text-[#888] hover:text-white transition-colors mb-4"
+              className="glass-button inline-flex items-center px-3 py-2 rounded-lg transition-colors mb-4 text-white"
             >
               <svg width="20" height="20" fill="none" className="mr-2">
                 <path d="M13 16l-5-5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               Back to Home
             </Link>
-            <h1 className="text-3xl font-bold mb-2">All Projects</h1>
+            <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--main-primary)' }}>All Projects</h1>
             <p className="text-[#888]">Explore my complete portfolio of work</p>
           </div>
 
           {/* Error State */}
           <div className="text-center py-20">
-            <div className="bg-red-600/20 border border-red-600/50 rounded-lg p-6 max-w-md mx-auto">
-              <h2 className="text-red-400 text-lg font-semibold mb-2">
+            <div className="glass-card p-6 rounded-lg max-w-md mx-auto relative overflow-hidden">
+              <div className="glass-grid-pattern opacity-10" />
+              <h2 className="text-lg font-semibold mb-2 relative z-10" style={{ color: 'var(--main-primary)' }}>
                 Error Loading Projects
               </h2>
-              <p className="text-red-300 mb-4">{error}</p>
+              <p className="mb-4 relative z-10" style={{ color: 'var(--main-secondary)' }}>{error}</p>
               <button
                 onClick={() => window.location.reload()}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                className="glass-button px-4 py-2 rounded-lg transition-colors text-white"
               >
                 Try Again
               </button>
@@ -111,20 +129,27 @@ export default function AllProjectsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#161616] text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center">
-      <div className="w-full max-w-6xl">
+    <div 
+      className="min-h-screen text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center relative"
+      style={{ backgroundColor: 'var(--max-bg)' }}
+    >
+      <div className="glass-background" />
+      <div className="fixed inset-0 opacity-20">
+        <div className="glass-grid-pattern" />
+      </div>
+      <div className="w-full max-w-6xl relative z-10">
         {/* Header */}
         <div className="mb-8">
           <Link 
             href="/" 
-            className="inline-flex items-center text-[#888] hover:text-white transition-colors mb-4"
+            className="glass-button inline-flex items-center px-3 py-2 rounded-lg transition-colors mb-4 text-white"
           >
             <svg width="20" height="20" fill="none" className="mr-2">
               <path d="M13 16l-5-5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             Back to Home
           </Link>
-          <h1 className="text-3xl font-bold mb-2">All Projects</h1>
+          <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--main-primary)' }}>All Projects</h1>
           <p className="text-[#888]">Explore my complete portfolio of work</p>
         </div>
 
@@ -173,10 +198,13 @@ export default function AllProjectsPage() {
 
             {/* Loading indicator for filtering - positioned as overlay */}
             {isFetching && (
-              <div className="fixed bottom-6 right-6 z-50 bg-[#232323] border border-[#333] rounded-lg px-4 py-3 shadow-lg">
-                <div className="flex items-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mr-2"></div>
-                  <span className="text-white text-sm">Searching...</span>
+              <div className="fixed bottom-6 right-6 z-50">
+                <div className="glass-card px-4 py-3 shadow-lg relative overflow-hidden">
+                  <div className="glass-grid-pattern opacity-10" />
+                  <div className="flex items-center relative z-10">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 mr-2" style={{ borderColor: 'var(--main-primary)' }}></div>
+                    <span className="text-white text-sm">Searching...</span>
+                  </div>
                 </div>
               </div>
             )}

@@ -66,9 +66,16 @@ export default function BlogDetailPage() {
   // Show loading state only for initial load
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#161616] text-white font-sans px-3 md:px-0 pb-10 flex flex-col items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+      <div 
+        className="min-h-screen text-white font-sans px-3 md:px-0 pb-10 flex flex-col items-center justify-center relative"
+        style={{ backgroundColor: 'var(--max-bg)' }}
+      >
+        <div className="glass-background" />
+        <div className="fixed inset-0 opacity-20">
+          <div className="glass-grid-pattern" />
+        </div>
+        <div className="text-center glass-card p-8 rounded-xl relative z-10">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: 'var(--main-primary)' }}></div>
           <p className="text-white text-lg">Loading blog...</p>
         </div>
       </div>
@@ -77,16 +84,24 @@ export default function BlogDetailPage() {
 
   if (error || !blog) {
     return (
-      <div className="min-h-screen bg-[#161616] text-white font-sans px-3 md:px-0 pb-10 flex flex-col items-center justify-center">
-        <div className="text-center max-w-md mx-auto">
-          <div className="bg-red-600/20 border border-red-600/50 rounded-lg p-6">
-            <h2 className="text-red-400 text-lg font-semibold mb-2">
+      <div 
+        className="min-h-screen text-white font-sans px-3 md:px-0 pb-10 flex flex-col items-center justify-center relative"
+        style={{ backgroundColor: 'var(--max-bg)' }}
+      >
+        <div className="glass-background" />
+        <div className="fixed inset-0 opacity-20">
+          <div className="glass-grid-pattern" />
+        </div>
+        <div className="text-center max-w-md mx-auto relative z-10">
+          <div className="glass-card p-6 rounded-lg relative overflow-hidden">
+            <div className="glass-grid-pattern opacity-10" />
+            <h2 className="text-lg font-semibold mb-2 relative z-10" style={{ color: 'var(--main-primary)' }}>
               Blog Not Found
             </h2>
-            <p className="text-red-300 mb-4">{error || 'The requested blog could not be found.'}</p>
+            <p className="mb-4 relative z-10" style={{ color: 'var(--main-secondary)' }}>{error || 'The requested blog could not be found.'}</p>
             <button
               onClick={() => router.push('/')}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors cursor-pointer"
+              className="glass-button px-4 py-2 rounded-lg transition-colors cursor-pointer text-white"
             >
               Go Back Home
             </button>
@@ -97,23 +112,32 @@ export default function BlogDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#161616] text-white font-sans">
+    <div 
+      className="min-h-screen text-white font-sans relative"
+      style={{ backgroundColor: 'var(--max-bg)' }}
+    >
+      <div className="glass-background" />
+      <div className="fixed inset-0 opacity-20">
+        <div className="glass-grid-pattern" />
+      </div>
+      
       {/* Show subtle loading indicator for background fetches */}
       {isFetching && !isLoading && (
         <div className="fixed top-4 right-4 z-50">
-          <div className="bg-blue-600/20 border border-blue-600/50 rounded-lg px-3 py-2 flex items-center space-x-2">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-400"></div>
-            <span className="text-blue-400 text-sm">Updating...</span>
+          <div className="glass-card px-3 py-2 flex items-center space-x-2 relative overflow-hidden">
+            <div className="glass-grid-pattern opacity-10" />
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 relative z-10" style={{ borderColor: 'var(--main-primary)' }}></div>
+            <span className="text-sm relative z-10" style={{ color: 'var(--main-primary)' }}>Updating...</span>
           </div>
         </div>
       )}
 
-      <div className="px-3 md:px-0 pb-10 flex flex-col items-center">
+      <div className="px-3 md:px-0 pb-10 flex flex-col items-center relative z-10">
         <div className="w-full max-w-4xl mt-10">
           {/* Back Button */}
           <button
             onClick={() => router.push('/')}
-            className="mb-6 flex items-center gap-2 text-[#aaa] hover:text-white transition-colors cursor-pointer"
+            className="mb-6 flex items-center gap-2 glass-button px-3 py-2 rounded-lg transition-colors cursor-pointer text-white"
           >
             <FaArrowLeft size={20} />
             Back
@@ -139,7 +163,7 @@ export default function BlogDetailPage() {
 
             {/* Title */}
             <header className="mb-6">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight" style={{ color: 'var(--main-primary)' }}>
                 {blog.title}
               </h1>
 
@@ -152,12 +176,14 @@ export default function BlogDetailPage() {
             </header>
 
             {/* Meta Information */}
-            <div className="flex flex-wrap items-center gap-4 text-sm text-[#aaa] mb-6 pb-6 border-b border-[#333]">
-              {/* Author */}
-              <div className="flex items-center gap-2">
-                <FaUser size={16} />
-                <span>By {blog.author || 'Admin'}</span>
-              </div>
+            <div className="glass-card p-4 rounded-lg mb-6 relative overflow-hidden">
+              <div className="glass-grid-pattern opacity-10" />
+              <div className="flex flex-wrap items-center gap-4 text-sm text-[#aaa] relative z-10">
+                {/* Author */}
+                <div className="flex items-center gap-2">
+                  <FaUser size={16} />
+                  <span style={{ color: 'var(--main-secondary)' }}>By {blog.author || 'Admin'}</span>
+                </div>
 
               {/* Published Date */}
               {blog.publishedAt && (
@@ -194,23 +220,24 @@ export default function BlogDetailPage() {
                 <button
                   onClick={handleUpvote}
                   disabled={isLiking}
-                  className="flex items-center gap-1 hover:text-red-400 transition-colors cursor-pointer disabled:opacity-50"
+                  className="glass-button flex items-center gap-1 px-3 py-1 rounded transition-colors cursor-pointer disabled:opacity-50 text-white"
                 >
                   <FaHeart size={16} />
                   <span>{blog.likes} upvotes</span>
                 </button>
+              </div>
               </div>
             </div>
 
             {/* Tags */}
             {blog.tags && blog.tags.length > 0 && (
               <div className="mb-8">
-                <h3 className="text-sm font-semibold text-[#aaa] mb-3 uppercase tracking-wider">Tags</h3>
+                <h3 className="text-sm font-semibold mb-3 uppercase tracking-wider" style={{ color: 'var(--main-secondary)' }}>Tags</h3>
                 <div className="flex flex-wrap gap-2">
                   {blog.tags.map((tag: string, index: number) => (
                     <span
                       key={index}
-                      className="px-3 py-1 bg-[#333] text-sm rounded-full text-[#ccc] hover:bg-[#444] transition-colors"
+                      className="glass-button px-3 py-1 text-sm rounded-full text-white transition-colors"
                     >
                       #{tag}
                     </span>
@@ -221,10 +248,7 @@ export default function BlogDetailPage() {
 
             {/* Publication Status */}
             <div className="mb-8">
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${blog.isPublished
-                ? 'bg-green-600/20 text-green-400 border border-green-600/50'
-                : 'bg-yellow-600/20 text-yellow-400 border border-yellow-600/50'
-                }`}>
+              <span className={`glass-button inline-flex items-center px-3 py-1 rounded-full text-xs font-medium text-white ${blog.isPublished ? '' : 'opacity-75'}`}>
                 {blog.isPublished ? '✓ Published' : '⏳ Draft'}
               </span>
             </div>

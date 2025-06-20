@@ -19,13 +19,13 @@ export default function Header({ profile }: HeaderProps) {
     "I am Buddhadeb Koner, a FullStack Web Developer with a passion for creating and sharing great software. I specialize in the MERN stack and Next.js, and I am always eager to learn new technologies and frameworks. I am a dedicated problem solver who enjoys contributing to open-source projects and building innovative web applications.";
 
   return (
-    <div className="w-full max-w-5xl">
-      <h1 className="text-3xl md:text-4xl font-extrabold mb-2">{displayName}</h1>
+    <div className="w-full max-w-5xl relative z-10">
+      <h1 className="text-3xl md:text-4xl font-extrabold mb-2" style={{ color: 'var(--main-primary)' }}>{displayName}</h1>
       <p className="leading-relaxed mb-6 text-[#e0e0e0]">
         {displayBio}
       </p>
 
-      <p className="text-lg md:text-xl font-semibold mb-4 text-[#e0e0e0]">
+      <p className="text-lg md:text-xl font-semibold mb-4" style={{ color: 'var(--main-secondary)' }}>
         Coding Buddys
       </p>
       <div className="flex  mb-10 w-full">
@@ -38,20 +38,20 @@ export default function Header({ profile }: HeaderProps) {
             href={profile.resumeUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-white text-[#161616] rounded px-4 py-2 font-medium text-sm shadow hover:bg-[#f0f0f0] transition border border-white"
+            className="glass-button text-white rounded px-4 py-2 font-medium text-sm inline-flex items-center justify-center gap-2 whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:ring-[3px] transition-all duration-300"
           >
             Download Resume
           </a>
         ) : (
           <button
-            className="bg-white text-[#161616] rounded px-4 py-2 font-medium text-sm shadow border border-white opacity-50 cursor-not-allowed"
+            className="glass-button text-white rounded px-4 py-2 font-medium text-sm inline-flex items-center justify-center gap-2 whitespace-nowrap opacity-50 cursor-not-allowed"
             disabled
           >
             Download Resume
           </button>
         )}
         <button
-          className="flex items-center gap-2 border border-white px-4 py-2 rounded text-sm font-medium hover:bg-[#1d1d1d] transition"
+          className="glass-button flex items-center gap-2 px-4 py-2 rounded text-sm font-medium text-white transition-all duration-300"
           onClick={handleChatToggle}
         >
           <FaPaperPlane className="text-base" /> Chat with me

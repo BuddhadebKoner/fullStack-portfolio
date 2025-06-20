@@ -52,12 +52,29 @@ export async function GET(request: NextRequest) {
     // Calculate pagination
     const skip = (page - 1) * limit;
 
-    // Execute query
-    const projects = await Project.find(query)
-      .sort(sort)
-      .skip(skip)
-      .limit(limit)
-      .lean();
+    // Execute query with aggregation to truncate description
+    const projects = await Project.aggregate([
+      { $match: query },
+      {
+        $project: {
+          title: 1,
+          desc: { $substr: ["$desc", 0, 100] }, // Limit to first 100 characters
+          img: 1,
+          technologies: 1,
+          githubUrl: 1,
+          liveUrl: 1,
+          category: 1,
+          featured: 1,
+          isPublished: 1,
+          order: 1,
+          createdAt: 1,
+          updatedAt: 1
+        }
+      },
+      { $sort: { [sort]: 1 } },
+      { $skip: skip },
+      { $limit: limit }
+    ]);
 
     const total = await Project.countDocuments(query);
     const pages = Math.ceil(total / limit);
@@ -74,7 +91,6 @@ export async function GET(request: NextRequest) {
     });
 
   } catch {
-
     return NextResponse.json(
       { success: false, error: 'Failed to fetch projects' },
       { status: 500 }

@@ -18,20 +18,20 @@ export default function BlogsSection({ blogs }: BlogsSectionProps) {
   const swiperRef = useRef<SwiperType | null>(null);
 
   return (
-    <div className="w-full max-w-5xl mb-10">
+    <div className="w-full max-w-5xl mb-10 relative z-10">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-xl">Blogs</h3>
+        <h3 className="font-semibold text-xl" style={{ color: 'var(--main-primary)' }}>Blogs</h3>
         <div className="flex items-center gap-3">
           <Link 
             href="/blog"
-            className="text-sm text-[#888] hover:text-white transition-colors px-3 py-1 border border-[#333] rounded-full hover:border-[#555]"
+            className="glass-button text-sm px-3 py-1 rounded-full text-white transition-colors"
           >
             View All
           </Link>
           <div className="flex gap-2">
             <button 
               onClick={() => swiperRef.current?.slidePrev()}
-              className="bg-[#232323] rounded p-1 border border-[#242424] hover:bg-[#333] transition"
+              className="glass-button rounded p-1 transition"
             >
               <svg width="20" height="20" fill="none">
                 <path d="M13 16l-5-5 5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -39,7 +39,7 @@ export default function BlogsSection({ blogs }: BlogsSectionProps) {
             </button>
             <button 
               onClick={() => swiperRef.current?.slideNext()}
-              className="bg-[#232323] rounded p-1 border border-[#242424] hover:bg-[#333] transition"
+              className="glass-button rounded p-1 transition"
             >
               <svg width="20" height="20" fill="none">
                 <path d="M7 16l5-5-5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

@@ -18,13 +18,14 @@ export default function SkillsCard({ skills }: SkillsCardProps) {
   };
 
   return (
-    <div className="bg-[#232323] rounded-xl p-5 flex flex-col gap-3">
-      <h3 className="text-lg font-semibold mb-1">Skills</h3>
-      <div className="flex flex-wrap gap-2">
+    <div className="glass-card rounded-xl p-5 flex flex-col gap-3 relative z-10">
+      <div className="glass-grid-pattern opacity-20" />
+        <h3 className="text-lg font-semibold mb-1 relative z-10" style={{ color: 'var(--main-primary)' }}>Skills</h3>
+      <div className="flex flex-wrap gap-2 relative z-10">
         {skills.map((skill) => (
           <span
             key={skill}
-            className="bg-[#181818] text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2"
+            className="glass-button text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2"
           >
             {!failedImages.has(skill) && (
               <Image

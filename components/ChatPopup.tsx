@@ -32,7 +32,9 @@ export default function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
   }, [isOpen]);
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || isLoading) return;
+    if (!inputMessage.trim() || isLoading) {
+      return;
+    }
 
     const messageToSend = inputMessage.trim();
     setInputMessage("");
@@ -75,7 +77,8 @@ export default function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
             href={part}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-blue-400 hover:text-blue-300 underline decoration-blue-400/50 hover:decoration-blue-300 transition-colors"
+            className="inline-flex items-center gap-1 hover:underline transition-colors"
+            style={{ color: 'var(--main-primary)' }}
           >
             {part.length > 50 ? `${part.substring(0, 50)}...` : part}
           </a>
@@ -97,13 +100,15 @@ export default function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
           }
 
 
-          const routeColor = 'text-green-400 hover:text-green-300 decoration-green-400/50 hover:decoration-green-300';
+          const routeColor = 'hover:underline transition-colors cursor-pointer';
+          const routeStyle = { color: 'var(--main-secondary)' };
 
           return (
             <Link
               key={`${index}-${routeIndex}`}
               href={cleanRoute}
-              className={`inline-flex items-center gap-1 ${routeColor} underline transition-colors cursor-pointer`}
+              className={`inline-flex items-center gap-1 ${routeColor}`}
+              style={routeStyle}
               onClick={onClose} // Close chat when navigating
             >
               {cleanRoute}
@@ -115,20 +120,23 @@ export default function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
     });
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 flex items-end justify-end z-50 pointer-events-none">
       <div className="absolute inset-0 bg-black/40 pointer-events-auto" onClick={onClose} />
-      <div className="relative bg-[#232323] text-white w-[350px] md:w-[400px] h-[500px] rounded-2xl m-4 md:m-8 shadow-2xl flex flex-col z-10 border border-[#404040] pointer-events-auto">
+      <div className="relative chat-glass-container text-white w-[350px] md:w-[400px] h-[500px] rounded-2xl m-4 md:m-8 shadow-2xl flex flex-col z-10 pointer-events-auto">
+        <div className="glass-grid-pattern opacity-10" />
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[#404040]">
+        <div className="flex items-center justify-between px-4 py-3 border-b relative z-10" style={{ borderColor: 'var(--card-glass-border)' }}>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="font-semibold">Chat with Buddhadeb</span>
+            <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: 'var(--main-primary)' }}></div>
+            <span className="font-semibold" style={{ color: 'var(--main-primary)' }}>Chat with Buddhadeb</span>
           </div>
           <button
-            className="hover:bg-[#181818] rounded-full p-1"
+            className="glass-button rounded-full p-2 transition-colors"
             onClick={onClose}
           >
             <FaTimes />
@@ -136,14 +144,15 @@ export default function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 p-4 overflow-y-auto flex flex-col gap-3">
+        <div className="flex-1 p-4 overflow-y-auto flex flex-col gap-3 relative z-10">
           {error && (
-            <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-sm">
-              <div className="flex justify-between items-start">
-                <span>{error}</span>
+            <div className="chat-message-bubble p-3 text-sm relative overflow-hidden">
+              <div className="glass-grid-pattern opacity-5" />
+              <div className="flex justify-between items-start relative z-10">
+                <span style={{ color: 'var(--main-secondary)' }}>{error}</span>
                 <button
                   onClick={clearError}
-                  className="text-red-300 hover:text-white ml-2"
+                  className="glass-button text-sm px-2 py-1 rounded ml-2 text-white"
                 >
                   ×
                 </button>
@@ -158,9 +167,9 @@ export default function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
                 }`}
             >
               <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm ${message.isUser
-                ? 'bg-blue-500 text-white'
-                : 'bg-green-500 text-white'
-                }`}>
+                ? 'glass-button text-white'
+                : 'glass-button text-white'
+                }`} style={{ backgroundColor: message.isUser ? 'var(--main-primary)' : 'var(--main-secondary)' }}>
                 {message.isUser ? (
                   user?.imageUrl ? (
                     <Image
@@ -179,15 +188,16 @@ export default function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
               </div>
               <div className={`max-w-[70%] ${message.isUser ? 'text-right' : 'text-left'
                 }`}>
-                <div className={`px-4 py-2 rounded-xl ${message.isUser
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-[#181818] text-white border border-[#404040]'
+                <div className={`px-4 py-2 rounded-xl relative overflow-hidden ${message.isUser
+                  ? 'chat-user-message-bubble text-white'
+                  : 'chat-message-bubble text-white'
                   }`}>
-                  <div className="text-sm whitespace-pre-wrap">
+                  {!message.isUser && <div className="glass-grid-pattern opacity-5" />}
+                  <div className="text-sm whitespace-pre-wrap relative z-10">
                     {message.isUser ? message.text : renderMessageWithLinks(message.text)}
                   </div>
                 </div>
-                <div className="text-xs text-gray-500 mt-1 px-1">
+                <div className="text-xs mt-1 px-1" style={{ color: 'var(--main-secondary)' }}>
                   {formatTime(message.timestamp)}
                 </div>
               </div>
@@ -196,11 +206,12 @@ export default function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
 
           {isLoading && (
             <div className="flex gap-2">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-sm text-white">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full glass-button flex items-center justify-center text-sm text-white" style={{ backgroundColor: 'var(--main-secondary)' }}>
                 <FaRobot />
               </div>
-              <div className="bg-[#181818] border border-[#404040] px-4 py-2 rounded-xl">
-                <div className="flex items-center gap-2 text-sm text-gray-400">
+              <div className="chat-message-bubble px-4 py-2 rounded-xl relative overflow-hidden">
+                <div className="glass-grid-pattern opacity-5" />
+                <div className="flex items-center gap-2 text-sm relative z-10" style={{ color: 'var(--main-secondary)' }}>
                   <FaSpinner className="animate-spin" />
                   <span>Buddhadeb is typing...</span>
                 </div>
@@ -212,20 +223,20 @@ export default function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
         </div>
 
         {/* Input */}
-        <div className="p-4 border-t border-[#404040] flex items-center gap-2">
+        <div className="p-4 border-t flex items-center gap-2 relative z-10" style={{ borderColor: 'var(--card-glass-border)' }}>
           <input
             ref={inputRef}
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             disabled={isLoading}
-            className="flex-1 rounded-lg bg-[#181818] px-3 py-2 text-sm outline-none border border-[#404040] focus:border-white transition disabled:opacity-50"
+            className="flex-1 rounded-lg chat-message-bubble px-3 py-2 text-sm outline-none text-white transition disabled:opacity-50 placeholder:text-gray-400"
             placeholder={isLoading ? "Sending..." : "Type your message..."}
           />
           <button
             onClick={handleSendMessage}
             disabled={!inputMessage.trim() || isLoading}
-            className="bg-white text-[#161616] px-3 py-2 rounded-lg font-semibold shadow hover:bg-[#f0f0f0] transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="glass-button px-3 py-2 rounded-lg font-semibold shadow transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-white"
           >
             {isLoading ? <FaSpinner className="animate-spin" /> : <FaPaperPlane />}
           </button>
