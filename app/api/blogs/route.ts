@@ -62,17 +62,19 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    // Parse pagination parameters
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const search = searchParams.get('search') || '';
+    const tags = searchParams.get('tags')?.split(',').filter(Boolean) || [];
     const published = searchParams.get('published');
-    const tags = searchParams.get('tags');
-    const sort = searchParams.get('sort') || '-createdAt';
+    const sortBy = searchParams.get('sortBy') || 'createdAt';
+    const sortOrder = searchParams.get('sortOrder') || 'desc';
 
     // Build query
     const query: BlogQuery = {};
-
-    if (published !== null) {
+    
+    if (published !== null && published !== undefined) {
       query.isPublished = published === 'true';
     }
 
@@ -83,36 +85,61 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    if (tags) {
-      const tagArray = tags.split(',').map(tag => tag.trim());
-      query.tags = { $in: tagArray };
+    if (tags.length > 0) {
+      query.tags = { $in: tags };
     }
+
+    // Build sort object
+    const sort: Record<string, 1 | -1> = {};
+    sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
 
     // Calculate pagination
     const skip = (page - 1) * limit;
 
-    // Execute query
+    // Get total count for pagination
+    const total = await Blog.countDocuments(query);
+    const pages = Math.ceil(total / limit);
+
+    // Fetch blogs with pagination
     const blogs = await Blog.find(query)
       .sort(sort)
       .skip(skip)
       .limit(limit)
       .lean();
 
-    const total = await Blog.countDocuments(query);
-    const pages = Math.ceil(total / limit);
+    // Transform to BlogData format
+    const transformedBlogs: BlogData[] = blogs.map(blog => ({
+      _id: blog._id?.toString() ?? '',
+      title: blog.title ?? '',
+      desc: blog.desc ?? '',
+      content: blog.content ?? '',
+      author: blog.author ?? '',
+      tags: blog.tags ?? [],
+      imageUrl: blog.imageUrl ?? '',
+      slug: blog.slug ?? '',
+      isPublished: blog.isPublished ?? false,
+      publishedAt: blog.publishedAt?.toISOString() ?? '',
+      views: blog.views ?? 0,
+      likes: blog.likes ?? 0,
+      createdAt: blog.createdAt?.toISOString() ?? '',
+      updatedAt: blog.updatedAt?.toISOString() ?? '',
+    }));
 
     return NextResponse.json({
       success: true,
-      data: blogs,
+      data: transformedBlogs,
       pagination: {
         page,
         limit,
         total,
-        pages
+        pages,
+        hasNext: page < pages,
+        hasPrev: page > 1
       }
     });
 
-  } catch {
+  } catch (error) {
+    console.error('Error fetching blogs:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to fetch blogs' },
       { status: 500 }
@@ -120,7 +147,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/blogs - Create new blog
+// POST /api/blogs - Create a new blog (for non-slug requests)
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth();
@@ -133,64 +160,52 @@ export async function POST(request: NextRequest) {
 
     await connectToDatabase();
 
-    // find user profile
-    const userProfile = await Profile.findOne({ userId })
-      .select('firstName lastName')
-      .lean() as { firstName: string; lastName: string } | null;
-    
-    if (!userProfile) {
-      return NextResponse.json(
-        { success: false, error: 'User profile not found' },
-        { status: 404 }
-      );
+    // Get author name from profile
+    const profile = await Profile.findOne({ clerkId: userId }).lean();
+    const profileData = profile as { firstName?: string; lastName?: string } | null;
+    const authorName = profileData ? `${profileData.firstName || ''} ${profileData.lastName || ''}`.trim() : 'Anonymous';
+
+    const blogData = await request.json();
+
+    // Generate slug if not provided
+    if (!blogData.slug && blogData.title) {
+      blogData.slug = blogData.title
+        .toLowerCase()
+        .replace(/[^a-zA-Z0-9 ]/g, '')
+        .replace(/\s+/g, '-');
     }
 
-    const body = await request.json();
-    const { title, desc, content, tags = [], imageUrl, isPublished = false } = body;
-
-    // Validate required fields
-    if (!title || !desc) {
-      return NextResponse.json(
-        { success: false, error: 'Title and description are required' },
-        { status: 400 }
-      );
-    }
-
-    // Create slug from title
-    const slug = title
-      .toLowerCase()
-      .replace(/[^a-zA-Z0-9 ]/g, '')
-      .replace(/\s+/g, '-');
-
-    // Check if slug already exists
-    const existingBlog = await Blog.findOne({ slug });
-    if (existingBlog) {
-      return NextResponse.json(
-        { success: false, error: 'A blog with this title already exists' },
-        { status: 400 }
-      );
-    }
-
-    const blog = new Blog({
-      title,
-      desc,
-      content,
-      tags,
-      imageUrl,
-      slug,
-      isPublished,
-      author: `${userProfile.firstName} ${userProfile.lastName}`,
+    const newBlog = new Blog({
+      ...blogData,
+      author: authorName,
     });
 
-    await blog.save();
+    const savedBlog = await newBlog.save();
+
+    const transformedBlog: BlogData = {
+      _id: savedBlog._id?.toString() ?? '',
+      title: savedBlog.title ?? '',
+      desc: savedBlog.desc ?? '',
+      content: savedBlog.content ?? '',
+      author: savedBlog.author ?? '',
+      tags: savedBlog.tags ?? [],
+      imageUrl: savedBlog.imageUrl ?? '',
+      slug: savedBlog.slug ?? '',
+      isPublished: savedBlog.isPublished ?? false,
+      publishedAt: savedBlog.publishedAt?.toISOString() ?? '',
+      views: savedBlog.views ?? 0,
+      likes: savedBlog.likes ?? 0,
+      createdAt: savedBlog.createdAt?.toISOString() ?? '',
+      updatedAt: savedBlog.updatedAt?.toISOString() ?? '',
+    };
 
     return NextResponse.json({
       success: true,
-      data: blog,
-      message: 'Blog created successfully'
-    }, { status: 201 });
+      data: transformedBlog,
+    });
 
-  } catch {
+  } catch (error) {
+    console.error('Error creating blog:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to create blog' },
       { status: 500 }

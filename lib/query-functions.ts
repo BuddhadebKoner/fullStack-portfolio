@@ -1,4 +1,4 @@
-  import { queryKeys } from './query-keys';
+import { queryKeys } from './query-keys';
 
 // Types from existing useHomeData.ts
 export interface HomeProfile {
@@ -689,6 +689,461 @@ export const projectMutations = {
     mutationFn: async (id: string) => {
       const response = await fetch(`/api/projects/${id}`, {
         method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return response.json();
+    },
+  },
+} as const;
+
+// Skills types
+export interface SkillData {
+  _id: string;
+  name: string;
+  category: string;
+  level: 'beginner' | 'intermediate' | 'advanced' | 'expert';
+  order: number;
+  isVisible: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// WorkExperience types  
+export interface WorkExperienceData {
+  _id: string;
+  company: string;
+  position: string;
+  companyLogo?: string;
+  startDate: string;
+  endDate?: string;
+  isCurrent: boolean;
+  description?: string;
+  technologies: string[];
+  order: number;
+  isVisible: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Form field configuration
+export interface FormField {
+  name: string;
+  label: string;
+  type: 'text' | 'email' | 'tel' | 'textarea' | 'url' | 'checkbox';
+  placeholder?: string;
+  required?: boolean;
+  maxLength?: number;
+  rows?: number;
+}
+
+// Profile types
+export interface ProfileData {
+  _id?: string;
+  firstName: string;
+  lastName: string;
+  bio?: string;
+  avatar?: string;
+  email: string;
+  phone?: string;
+  location?: string;
+  city?: string;
+  country?: string;
+  address?: string;
+  resumeUrl?: string;
+  isPublic?: boolean;
+  isAvailable?: boolean;
+  socialLinks?: {
+    github?: string;
+    linkedin?: string;
+    twitter?: string;
+    website?: string;
+    facebook?: string;
+    instagram?: string;
+  };
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ProfileFormData {
+  firstName: string;
+  lastName: string;
+  bio?: string;
+  avatar?: string;
+  email: string;
+  phone?: string;
+  location?: string;
+  city?: string;
+  country?: string;
+  address?: string;
+  resumeUrl?: string;
+  isPublic?: boolean;
+  isAvailable?: boolean;
+  socialLinks?: {
+    github?: string;
+    linkedin?: string;
+    twitter?: string;
+    website?: string;
+    facebook?: string;
+    instagram?: string;
+  };
+}
+
+// API Response types for new entities
+interface SkillApiResponse {
+  success: boolean;
+  data?: SkillData | SkillData[];
+  error?: string;
+  message?: string;
+}
+
+interface WorkExperienceApiResponse {
+  success: boolean;
+  data?: WorkExperienceData[];
+  error?: string;
+}
+
+interface ProfileApiResponse {
+  success: boolean;
+  data?: ProfileData;
+  error?: string;
+}
+
+/**
+ * Fetch all skills
+ */
+export const fetchSkills = async (): Promise<SkillData[]> => {
+  const response = await fetch('/api/skills', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const result: SkillApiResponse = await response.json();
+
+  if (!result.success || !result.data) {
+    throw new Error(result.error || 'Failed to fetch skills');
+  }
+
+  return Array.isArray(result.data) ? result.data : [result.data];
+};
+
+/**
+ * Fetch single skill by ID
+ */
+export const fetchSkillById = async (id: string): Promise<SkillData> => {
+  const response = await fetch(`/api/skills/${id}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const result: SkillApiResponse = await response.json();
+
+  if (!result.success || !result.data) {
+    throw new Error(result.error || 'Failed to fetch skill');
+  }
+
+  return Array.isArray(result.data) ? result.data[0] : result.data;
+};
+
+/**
+ * Fetch all work experience
+ */
+export const fetchWorkExperience = async (): Promise<WorkExperienceData[]> => {
+  const response = await fetch('/api/work-experience', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const result: WorkExperienceApiResponse = await response.json();
+
+  if (!result.success || !result.data) {
+    throw new Error(result.error || 'Failed to fetch work experience');
+  }
+
+  return result.data;
+};
+
+/**
+ * Fetch single work experience by ID
+ */
+export const fetchWorkExperienceById = async (id: string): Promise<WorkExperienceData> => {
+  const response = await fetch(`/api/work-experience/${id}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const result: WorkExperienceApiResponse = await response.json();
+
+  if (!result.success || !result.data) {
+    throw new Error(result.error || 'Failed to fetch work experience');
+  }
+
+  return Array.isArray(result.data) ? result.data[0] : result.data;
+};
+
+/**
+ * Fetch profile data
+ */
+export const fetchProfile = async (): Promise<ProfileData | null> => {
+  const response = await fetch('/api/profile', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      return null; // No profile exists yet
+    }
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const result: ProfileApiResponse = await response.json();
+
+  if (!result.success) {
+    if (result.error?.includes('not found')) {
+      return null; // No profile exists yet
+    }
+    throw new Error(result.error || 'Failed to fetch profile');
+  }
+
+  return result.data || null;
+};
+
+/**
+ * Skills query functions
+ */
+export const skillQueries = {
+  // Get all skills
+  all: () => ({
+    queryKey: queryKeys.skills.lists(),
+    queryFn: fetchSkills,
+    staleTime: 5 * 60 * 1000, // 5 minutes for skills
+    gcTime: 10 * 60 * 1000, // 10 minutes cache time
+    retry: 3,
+    retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+  }),
+
+  // Get skill by ID
+  byId: (id: string) => ({
+    queryKey: queryKeys.skills.detail(id),
+    queryFn: () => fetchSkillById(id),
+    staleTime: 10 * 60 * 1000, // 10 minutes for individual skills
+    gcTime: 30 * 60 * 1000, // 30 minutes cache time
+    retry: 3,
+    retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    enabled: !!id, // Only fetch if ID exists
+  }),
+} as const;
+
+/**
+ * WorkExperience query functions
+ */
+export const workExperienceQueries = {
+  // Get all work experience
+  all: () => ({
+    queryKey: queryKeys.workExperience.lists(),
+    queryFn: fetchWorkExperience,
+    staleTime: 5 * 60 * 1000, // 5 minutes for work experience
+    gcTime: 10 * 60 * 1000, // 10 minutes cache time
+    retry: 3,
+    retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+  }),
+
+  // Get work experience by ID
+  byId: (id: string) => ({
+    queryKey: queryKeys.workExperience.detail(id),
+    queryFn: () => fetchWorkExperienceById(id),
+    staleTime: 10 * 60 * 1000, // 10 minutes for individual work experience
+    gcTime: 30 * 60 * 1000, // 30 minutes cache time
+    retry: 3,
+    retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    enabled: !!id, // Only fetch if ID exists
+  }),
+} as const;
+
+/**
+ * Profile query functions
+ */
+export const profileQueries = {
+  // Get profile data
+  data: () => ({
+    queryKey: queryKeys.profile.data(),
+    queryFn: fetchProfile,
+    staleTime: 2 * 60 * 1000, // 2 minutes for profile
+    gcTime: 10 * 60 * 1000, // 10 minutes cache time
+    retry: 3,
+    retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+  }),
+} as const;
+
+/**
+ * Skills mutation functions
+ */
+export const skillMutations = {
+  // Create skill
+  create: {
+    mutationFn: async (skillData: Partial<SkillData>) => {
+      const response = await fetch('/api/skills', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(skillData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return response.json();
+    },
+  },
+
+  // Update skill
+  update: {
+    mutationFn: async ({ id, data }: { id: string; data: Partial<SkillData> }) => {
+      const response = await fetch(`/api/skills/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return response.json();
+    },
+  },
+
+  // Delete skill
+  delete: {
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/skills/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return response.json();
+    },
+  },
+} as const;
+
+/**
+ * WorkExperience mutation functions
+ */
+export const workExperienceMutations = {
+  // Create work experience
+  create: {
+    mutationFn: async (data: Partial<WorkExperienceData>) => {
+      const response = await fetch('/api/work-experience', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return response.json();
+    },
+  },
+
+  // Update work experience
+  update: {
+    mutationFn: async ({ id, data }: { id: string; data: Partial<WorkExperienceData> }) => {
+      const response = await fetch(`/api/work-experience/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return response.json();
+    },
+  },
+
+  // Delete work experience
+  delete: {
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/work-experience/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return response.json();
+    },
+  },
+} as const;
+
+/**
+ * Profile mutation functions
+ */
+export const profileMutations = {
+  // Create or update profile
+  save: {
+    mutationFn: async (profileData: ProfileFormData) => {
+      const response = await fetch('/api/profile', {
+        method: 'POST', // Use POST for both create and update
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(profileData),
       });
 
       if (!response.ok) {

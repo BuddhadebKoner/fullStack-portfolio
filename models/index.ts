@@ -4,8 +4,6 @@ export { default as Project, type IProject } from './project.model';
 export { default as Skill, type ISkill } from './skill.model';
 export { default as WorkExperience, type IWorkExperience } from './workExperience.model';
 export { default as Profile, type IProfile } from './profile.model';
-export { default as Analytics, type IAnalytics } from './analytics.model';
-export { default as AdminActivity, type IAdminActivity } from './adminActivity.model';
 export { default as ChatMessage, type IChatMessage } from './chatMessage.model';
 export { default as ChatSession, type IChatSession } from './chatSession.model';
 export { default as SiteSettings, type ISiteSettings } from './siteSettings.model';

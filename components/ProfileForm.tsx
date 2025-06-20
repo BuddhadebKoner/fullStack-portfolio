@@ -1,9 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { ProfileFormData } from '@/types/profile';
-import { FormField } from '@/types/profile';
-import { ProfileData } from '@/types/profile';
+import { ProfileFormData, ProfileData, FormField } from '@/lib/query-functions';
 import { FormState } from '@/types/common';
 
 interface ProfileFormProps {
@@ -203,17 +201,23 @@ export default function ProfileForm({
       });
 
       // Validate social links
-      Object.entries(formState.data.socialLinks).forEach(([key, value]) => {
-         if (value) {
-            const error = validateUrl(value);
-            if (error) errors[`socialLinks.${key}`] = error;
-         }
-      });
+      if (formState.data.socialLinks) {
+         (Object.entries(formState.data.socialLinks) as [string, string][]).forEach(([key, value]) => {
+            if (value) {
+               const error = validateUrl(value);
+               if (error) {
+                  errors[`socialLinks.${key}`] = error;
+               }
+            }
+         });
+      }
 
       // Validate bio
       if (formState.data.bio) {
          const bioError = validateField('bio', formState.data.bio);
-         if (bioError) errors['bio'] = bioError;
+         if (bioError) {
+            errors['bio'] = bioError;
+         }
       }
 
       if (Object.keys(errors).length > 0) {
@@ -329,10 +333,10 @@ export default function ProfileForm({
             <h3 className="text-white text-lg font-semibold mb-4">About</h3>
             {renderField(
                { name: 'bio', label: 'Bio', type: 'textarea', maxLength: 500, rows: 4, placeholder: 'Tell us about yourself...' },
-               formState.data.bio,
+               formState.data.bio || '',
                (value) => handleInputChange('bio', value)
             )}
-            <p className="text-[#a0a0a0] text-sm mt-1">{formState.data.bio.length}/500 characters</p>
+            <p className="text-[#a0a0a0] text-sm mt-1">{(formState.data.bio || '').length}/500 characters</p>
          </div>
 
          {/* Social Links */}
@@ -342,7 +346,7 @@ export default function ProfileForm({
                {socialFields.map(field =>
                   renderField(
                      field,
-                     formState.data.socialLinks[field.name as keyof typeof formState.data.socialLinks] || '',
+                     (formState.data.socialLinks && formState.data.socialLinks[field.name as keyof typeof formState.data.socialLinks]) || '',
                      (value) => handleInputChange(`socialLinks.${field.name}`, value)
                   )
                )}

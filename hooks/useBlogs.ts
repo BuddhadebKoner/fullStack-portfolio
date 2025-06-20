@@ -8,6 +8,9 @@ import {
 } from '@/lib/query-functions';
 import { queryKeys } from '@/lib/query-keys';
 
+// Re-export types for convenience
+export { type BlogData, type PaginationParams, type PaginatedResponse } from '@/lib/query-functions';
+
 interface UseBlogsReturn {
   blogs: BlogData[] | undefined;
   isLoading: boolean;
@@ -220,6 +223,3 @@ export function useBlogsPaginated(params: PaginationParams): UseBlogsPaginatedRe
     isPreviousData: isPlaceholderData,
   };
 }
-
-// Re-export types for backward compatibility
-export type { BlogData, PaginationParams, PaginatedResponse };

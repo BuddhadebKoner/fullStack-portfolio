@@ -1,26 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { 
+  workExperienceQueries, 
+  workExperienceMutations, 
+  type WorkExperienceData
+} from '@/lib/query-functions';
+import { queryKeys } from '@/lib/query-keys';
 
-export interface WorkExperienceData {
-  _id: string;
-  company: string;
-  position: string;
-  companyLogo?: string;
-  startDate: string;
-  endDate?: string;
-  isCurrent: boolean;
-  description?: string;
-  technologies: string[];
-  order: number;
-  isVisible: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface WorkExperienceApiResponse {
-  success: boolean;
-  data?: WorkExperienceData[];
-  error?: string;
-}
+// Re-export WorkExperienceData for convenience
+export { type WorkExperienceData } from '@/lib/query-functions';
 
 interface CreateWorkExperienceData {
   company: string;
@@ -41,7 +28,8 @@ interface UseWorkExperienceReturn {
   workExperience: WorkExperienceData[];
   isLoading: boolean;
   error: string | null;
-  fetchWorkExperience: () => Promise<void>;
+  refetch: () => void;
+  isFetching: boolean;
   refreshWorkExperience: () => Promise<void>;
   createWorkExperience: (data: CreateWorkExperienceData) => Promise<{ success: boolean; data?: WorkExperienceData; error?: string }>;
   updateWorkExperience: (id: string, data: UpdateWorkExperienceData) => Promise<{ success: boolean; data?: WorkExperienceData; error?: string }>;
@@ -49,52 +37,53 @@ interface UseWorkExperienceReturn {
 }
 
 export function useWorkExperience(): UseWorkExperienceReturn {
-  const [workExperience, setWorkExperience] = useState<WorkExperienceData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const fetchWorkExperience = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      
-      const response = await fetch('/api/work-experience');
-      const result: WorkExperienceApiResponse = await response.json();
+  const {
+    data: workExperience = [],
+    isLoading,
+    error,
+    refetch,
+    isFetching,
+  } = useQuery(workExperienceQueries.all());
 
-      if (result.success && result.data) {
-        setWorkExperience(result.data);
-      } else {
-        throw new Error(result.error || 'Failed to fetch work experience');
-      }
-    } catch (error) {
-      console.error('Error fetching work experience:', error);
-      setError(error instanceof Error ? error.message : 'Failed to fetch work experience');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Create work experience mutation
+  const createWorkExperienceMutation = useMutation({
+    ...workExperienceMutations.create,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.workExperience.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.home.all });
+    },
+  });
+
+  // Update work experience mutation
+  const updateWorkExperienceMutation = useMutation({
+    ...workExperienceMutations.update,
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.workExperience.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.workExperience.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.home.all });
+    },
+  });
+
+  // Delete work experience mutation
+  const deleteWorkExperienceMutation = useMutation({
+    ...workExperienceMutations.delete,
+    onSuccess: (data, id) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.workExperience.all });
+      queryClient.removeQueries({ queryKey: queryKeys.workExperience.detail(id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.home.all });
+    },
+  });
 
   const refreshWorkExperience = async () => {
-    await fetchWorkExperience();
+    await refetch();
   };
 
   const createWorkExperience = async (data: CreateWorkExperienceData) => {
     try {
-      const response = await fetch('/api/work-experience', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        await fetchWorkExperience(); // Refresh the list
-      }
-
-      return result;
+      const result = await createWorkExperienceMutation.mutateAsync(data);
+      return { success: true, data: result.data };
     } catch (error) {
       console.error('Error creating work experience:', error);
       return {
@@ -106,21 +95,8 @@ export function useWorkExperience(): UseWorkExperienceReturn {
 
   const updateWorkExperience = async (id: string, data: UpdateWorkExperienceData) => {
     try {
-      const response = await fetch(`/api/work-experience/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        await fetchWorkExperience(); // Refresh the list
-      }
-
-      return result;
+      const result = await updateWorkExperienceMutation.mutateAsync({ id, data });
+      return { success: true, data: result.data };
     } catch (error) {
       console.error('Error updating work experience:', error);
       return {
@@ -132,17 +108,8 @@ export function useWorkExperience(): UseWorkExperienceReturn {
 
   const deleteWorkExperience = async (id: string) => {
     try {
-      const response = await fetch(`/api/work-experience/${id}`, {
-        method: 'DELETE',
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        await fetchWorkExperience(); // Refresh the list
-      }
-
-      return result;
+      await deleteWorkExperienceMutation.mutateAsync(id);
+      return { success: true };
     } catch (error) {
       console.error('Error deleting work experience:', error);
       return {
@@ -152,15 +119,12 @@ export function useWorkExperience(): UseWorkExperienceReturn {
     }
   };
 
-  useEffect(() => {
-    fetchWorkExperience();
-  }, []);
-
   return {
     workExperience,
     isLoading,
-    error,
-    fetchWorkExperience,
+    error: error ? (error instanceof Error ? error.message : 'Failed to fetch work experience') : null,
+    refetch,
+    isFetching,
     refreshWorkExperience,
     createWorkExperience,
     updateWorkExperience,

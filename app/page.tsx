@@ -7,6 +7,7 @@ import BlogsSection from "@/components/BlogsSection";
 import WorkExperience from "@/components/WorkExperience";
 import ProjectsSection from "@/components/ProjectsSection";
 import { useHomeData } from "@/hooks/useHomeData";
+import Footer from "@/components/Footer";
 
 export default function Home() {
   const { data: homeData, isLoading, error, isFetching } = useHomeData();
@@ -14,7 +15,7 @@ export default function Home() {
   // Show loading state only for initial load, not for background refetches
   if (isLoading) {
     return (
-      <div 
+      <div
         className="min-h-screen text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center justify-center relative"
         style={{ backgroundColor: 'var(--max-bg)' }}
       >
@@ -34,7 +35,7 @@ export default function Home() {
   // Show error state
   if (error) {
     return (
-      <div 
+      <div
         className="min-h-screen text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center justify-center relative"
         style={{ backgroundColor: 'var(--max-bg)' }}
       >
@@ -82,43 +83,48 @@ export default function Home() {
   const projects = homeData?.projects || [];
 
   return (
-    <div 
-      className="min-h-screen text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center relative"
-      style={{ backgroundColor: 'var(--max-bg)' }}
-    >
-      {/* Enhanced Glassmorphism Background */}
-      <div className="glass-background" />
-      <div className="fixed inset-0 opacity-20">
-        <div className="glass-grid-pattern" />
-      </div>
-      {/* Show subtle loading indicator for background fetches */}
-      {isFetching && !isLoading && (
-        <div className="fixed top-4 right-4 z-50">
-          <div className="glass-card px-3 py-2 flex items-center space-x-2 relative overflow-hidden">
-            <div className="glass-grid-pattern opacity-10" />
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 relative z-10" style={{ borderColor: 'var(--main-primary)' }}></div>
-            <span className="text-sm relative z-10" style={{ color: 'var(--main-primary)' }}>Updating...</span>
-          </div>
+    <>
+      <div
+        className="min-h-screen text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center relative"
+        style={{ backgroundColor: 'var(--max-bg)' }}
+      >
+        {/* Enhanced Glassmorphism Background */}
+        <div className="glass-background" />
+        <div className="fixed inset-0 opacity-20">
+          <div className="glass-grid-pattern" />
         </div>
-      )}
+        {/* Show subtle loading indicator for background fetches */}
+        {isFetching && !isLoading && (
+          <div className="fixed top-4 right-4 z-50">
+            <div className="glass-card px-3 py-2 flex items-center space-x-2 relative overflow-hidden">
+              <div className="glass-grid-pattern opacity-10" />
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 relative z-10" style={{ borderColor: 'var(--main-primary)' }}></div>
+              <span className="text-sm relative z-10" style={{ color: 'var(--main-primary)' }}>Updating...</span>
+            </div>
+          </div>
+        )}
 
-      {/* Header */}
-      <Header profile={homeData?.profile} />
+        {/* Header */}
+        <Header profile={homeData?.profile} />
 
-      {/* Skills and Connect */}
-      <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-        <SkillsCard skills={skills} />
-        <ConnectCard profile={homeData?.profile} />
+        {/* Skills and Connect */}
+        <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+          <SkillsCard skills={skills} />
+          <ConnectCard profile={homeData?.profile} />
+        </div>
+
+        {/* Blogs */}
+        <BlogsSection blogs={blogs} />
+
+        {/* Work Experience */}
+        <WorkExperience workExperience={homeData?.workExperience} />
+
+        {/* Projects */}
+        <ProjectsSection projects={projects} />
+
       </div>
-
-      {/* Blogs */}
-      <BlogsSection blogs={blogs} />
-
-      {/* Work Experience */}
-      <WorkExperience workExperience={homeData?.workExperience} />
-
-      {/* Projects */}
-      <ProjectsSection projects={projects} />
-    </div>
+      {/* Footer */}
+      <Footer />
+    </>
   );
 } 

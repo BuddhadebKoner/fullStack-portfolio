@@ -8,6 +8,9 @@ import {
 } from '@/lib/query-functions';
 import { queryKeys } from '@/lib/query-keys';
 
+// Re-export types for convenience
+export { type ProjectData, type PaginationParams, type PaginatedResponse } from '@/lib/query-functions';
+
 interface UseProjectsReturn {
   projects: ProjectData[] | undefined;
   isLoading: boolean;
@@ -158,6 +161,3 @@ export function useProjectsPaginated(params: PaginationParams): UseProjectsPagin
     isPreviousData: isPlaceholderData,
   };
 }
-
-// Re-export types for backward compatibility
-export type { ProjectData, PaginationParams, PaginatedResponse };

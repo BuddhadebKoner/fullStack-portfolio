@@ -1,68 +1,51 @@
-import { useState, useEffect } from 'react';
-import { ProfileData, ProfileApiResponse, ProfileFormData } from '@/types/profile';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { 
+  profileQueries, 
+  profileMutations, 
+  type ProfileData,
+  type ProfileFormData
+} from '@/lib/query-functions';
+import { queryKeys } from '@/lib/query-keys';
+
+// Re-export types for convenience
+export { type ProfileData, type ProfileFormData } from '@/lib/query-functions';
 
 interface UseProfileReturn {
   profile: ProfileData | null;
   isLoading: boolean;
   error: string | null;
   isCreating: boolean;
-  fetchProfile: () => Promise<void>;
+  refetch: () => void;
+  isFetching: boolean;
   saveProfile: (data: ProfileFormData) => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
 
 export function useProfile(): UseProfileReturn {
-  const [profile, setProfile] = useState<ProfileData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isCreating, setIsCreating] = useState(false);
+  const queryClient = useQueryClient();
 
-  const fetchProfile = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      
-      const response = await fetch('/api/profile');
-      const result: ProfileApiResponse = await response.json();
+  const {
+    data: profile,
+    isLoading,
+    error,
+    refetch,
+    isFetching,
+  } = useQuery(profileQueries.data());
 
-      console.log('Profile fetch result:', result);
+  // Save profile mutation (create or update)
+  const saveProfileMutation = useMutation({
+    ...profileMutations.save,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.profile.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.home.all });
+    },
+  });
 
-      if (result.success && result.data) {
-        setProfile(result.data);
-        setIsCreating(false);
-      } else if (response.status === 404) {
-        // Profile not found, user needs to create one
-        setProfile(null);
-        setIsCreating(true);
-      } else {
-        throw new Error(result.error || 'Failed to fetch profile');
-      }
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-      setError(error instanceof Error ? error.message : 'Failed to fetch profile');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const isCreating = !profile; // If no profile exists, we're in creation mode
 
   const saveProfile = async (data: ProfileFormData) => {
     try {
-      setError(null);
-      
-      const response = await fetch('/api/profile', {
-        method: 'PUT', // Always use PUT since our API now handles upsert
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-
-      const result: ProfileApiResponse = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to save profile');
-      }
-
-      setProfile(result.data!);
-      setIsCreating(false); // After successful save, we're no longer in creating mode
+      await saveProfileMutation.mutateAsync(data);
     } catch (error) {
       console.error('Error saving profile:', error);
       throw error; // Re-throw to let the caller handle it
@@ -70,19 +53,16 @@ export function useProfile(): UseProfileReturn {
   };
 
   const refreshProfile = async () => {
-    await fetchProfile();
+    await refetch();
   };
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
   return {
-    profile,
+    profile: profile || null,
     isLoading,
-    error,
+    error: error ? (error instanceof Error ? error.message : 'Failed to fetch profile') : null,
     isCreating,
-    fetchProfile,
+    refetch,
+    isFetching,
     saveProfile,
     refreshProfile,
   };

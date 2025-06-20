@@ -3,6 +3,16 @@
 
 @custom-variant dark (&:is(.dark *));
 
+
+body{
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 /* Glassmorphism Theme Variables */
 :root {
   /* Main Colors */
@@ -224,14 +234,14 @@
   pointer-events: none;
 }
 
-.glass-card:hover {
+/* .glass-card:hover {
   border-color: var(--glass-border);
   box-shadow: 
     0 12px 48px var(--glass-shadow),
     inset 0 1px 0 var(--glass-highlight-hover);
   transform: translateY(-2px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+} */
 
 .glass-button {
   background: var(--button-glass-bg);

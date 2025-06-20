@@ -61,7 +61,7 @@ export default function AdminLayout({
     { href: '/admin/skills', label: 'Skills', icon: '💡' },
     { href: '/admin/work-experience', label: 'Work Experience', icon: '💼' },
     { href: '/admin/profile', label: 'Profile', icon: '👤' },
-    { href: '/admin/analytics', label: 'Analytics', icon: '📈' },
+    { href: '/admin/chat', label: 'Chat Management', icon: '💬' },
   ];
 
   const isActive = (href: string) => {

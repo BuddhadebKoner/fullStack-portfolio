@@ -4,7 +4,6 @@ import { ClerkProvider } from '@clerk/nextjs';
 import { AdminProvider } from '@/contexts/AdminContext';
 import { QueryProvider } from '@/lib/query-provider';
 import "./globals.css";
-import Footer from "@/components/Footer";
 import ChatLayout from "@/components/ChatLayout";
 
 const geistSans = Geist({
@@ -96,9 +95,7 @@ export default function RootLayout({
             >
               <ChatLayout>
                 {children}
-                {/* Footer */}
-                <Footer />
-              </ChatLayout>
+              </ChatLayout> 
             </body>
           </html>
         </AdminProvider>

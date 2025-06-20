@@ -1,22 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { 
+  skillQueries, 
+  skillMutations, 
+  type SkillData
+} from '@/lib/query-functions';
+import { queryKeys } from '@/lib/query-keys';
 
-export interface SkillData {
-  _id: string;
-  name: string;
-  category: string;
-  level: 'beginner' | 'intermediate' | 'advanced' | 'expert';
-  order: number;
-  isVisible: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface SkillApiResponse {
-  success: boolean;
-  data?: SkillData | SkillData[];
-  error?: string;
-  message?: string;
-}
+// Re-export SkillData for convenience
+export { type SkillData } from '@/lib/query-functions';
 
 interface CreateSkillData {
   name: string;
@@ -38,7 +29,8 @@ interface UseSkillsReturn {
   skills: SkillData[];
   isLoading: boolean;
   error: string | null;
-  fetchSkills: () => Promise<void>;
+  refetch: () => void;
+  isFetching: boolean;
   refreshSkills: () => Promise<void>;
   createSkill: (skillData: CreateSkillData) => Promise<boolean>;
   updateSkill: (id: string, skillData: UpdateSkillData) => Promise<boolean>;
@@ -46,124 +38,85 @@ interface UseSkillsReturn {
 }
 
 export function useSkills(): UseSkillsReturn {
-  const [skills, setSkills] = useState<SkillData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const fetchSkills = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      
-      const response = await fetch('/api/skills');
-      const result: SkillApiResponse = await response.json();
+  const {
+    data: skills = [],
+    isLoading,
+    error,
+    refetch,
+    isFetching,
+  } = useQuery(skillQueries.all());
 
-      if (result.success && Array.isArray(result.data)) {
-        setSkills(result.data);
-      } else {
-        throw new Error(result.error || 'Failed to fetch skills');
-      }
-    } catch (error) {
-      console.error('Error fetching skills:', error);
-      setError(error instanceof Error ? error.message : 'Failed to fetch skills');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Create skill mutation
+  const createSkillMutation = useMutation({
+    ...skillMutations.create,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.skills.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.home.all });
+    },
+  });
+
+  // Update skill mutation
+  const updateSkillMutation = useMutation({
+    ...skillMutations.update,
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.skills.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.skills.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.home.all });
+    },
+  });
+
+  // Delete skill mutation
+  const deleteSkillMutation = useMutation({
+    ...skillMutations.delete,
+    onSuccess: (data, id) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.skills.all });
+      queryClient.removeQueries({ queryKey: queryKeys.skills.detail(id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.home.all });
+    },
+  });
 
   const refreshSkills = async () => {
-    await fetchSkills();
+    await refetch();
   };
 
   const createSkill = async (skillData: CreateSkillData): Promise<boolean> => {
     try {
-      setError(null);
-      
-      const response = await fetch('/api/skills', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(skillData),
-      });
-
-      const result: SkillApiResponse = await response.json();
-
-      if (result.success) {
-        await refreshSkills(); // Refresh the list after creating
-        return true;
-      } else {
-        setError(result.error || 'Failed to create skill');
-        return false;
-      }
+      await createSkillMutation.mutateAsync(skillData);
+      return true;
     } catch (error) {
       console.error('Error creating skill:', error);
-      setError(error instanceof Error ? error.message : 'Failed to create skill');
       return false;
     }
   };
 
   const updateSkill = async (id: string, skillData: UpdateSkillData): Promise<boolean> => {
     try {
-      setError(null);
-      
-      const response = await fetch(`/api/skills/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(skillData),
-      });
-
-      const result: SkillApiResponse = await response.json();
-
-      if (result.success) {
-        await refreshSkills(); // Refresh the list after updating
-        return true;
-      } else {
-        setError(result.error || 'Failed to update skill');
-        return false;
-      }
+      await updateSkillMutation.mutateAsync({ id, data: skillData });
+      return true;
     } catch (error) {
       console.error('Error updating skill:', error);
-      setError(error instanceof Error ? error.message : 'Failed to update skill');
       return false;
     }
   };
 
   const deleteSkill = async (id: string): Promise<boolean> => {
     try {
-      setError(null);
-      
-      const response = await fetch(`/api/skills/${id}`, {
-        method: 'DELETE',
-      });
-
-      const result: SkillApiResponse = await response.json();
-
-      if (result.success) {
-        await refreshSkills(); // Refresh the list after deleting
-        return true;
-      } else {
-        setError(result.error || 'Failed to delete skill');
-        return false;
-      }
+      await deleteSkillMutation.mutateAsync(id);
+      return true;
     } catch (error) {
       console.error('Error deleting skill:', error);
-      setError(error instanceof Error ? error.message : 'Failed to delete skill');
       return false;
     }
   };
 
-  useEffect(() => {
-    fetchSkills();
-  }, []);
-
   return {
     skills,
     isLoading,
-    error,
-    fetchSkills,
+    error: error ? (error instanceof Error ? error.message : 'Failed to fetch skills') : null,
+    refetch,
+    isFetching,
     refreshSkills,
     createSkill,
     updateSkill,

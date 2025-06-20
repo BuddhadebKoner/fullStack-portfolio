@@ -4,7 +4,7 @@ import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import ProfileForm from './ProfileForm';
 import { useProfile } from '@/hooks/useProfile';
-import { ProfileFormData } from '@/types/profile';
+import { ProfileFormData } from '@/lib/query-functions';
 
 export default function ProfilePage() {
   const { user, isLoaded } = useUser();

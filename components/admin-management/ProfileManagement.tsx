@@ -1,10 +1,9 @@
 "use client";
 
-import { useProfile } from '@/hooks/useProfile';
+import { useProfile, ProfileFormData } from '@/hooks/useProfile';
 import { useState } from 'react';
 import Image from 'next/image';
 import ProfileForm from '../ProfileForm';
-import { ProfileFormData } from '@/types/profile';
 
 interface ProfileManagementProps {
   onRefresh?: () => void;

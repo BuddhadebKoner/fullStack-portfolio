@@ -68,6 +68,16 @@ export const queryKeys = {
     detail: (id: string) => [...queryKeys.workExperience.details(), id] as const,
   },
   
+  // Admin
+  admin: {
+    all: ['admin'] as const,
+    analytics: (timeRange: number) => ['admin', 'analytics', timeRange] as const,
+    chat: {
+      all: ['admin', 'chat'] as const,
+      messages: (params: PaginationParams) => ['admin', 'chat', 'messages', params] as const,
+    },
+  },
+  
   // Analytics
   analytics: {
     all: ['analytics'] as const,
