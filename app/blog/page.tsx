@@ -38,8 +38,8 @@ export default function AllBlogsPage() {
 
   if (isLoading && !blogs && !searchQuery) {
     return (
-      <div 
-        className="min-h-screen text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center relative"
+      <div
+        className="min-h-screen text-white font-sans px-3 md:px- lg:px-[12rem] py-10 flex flex-col items-center relative"
         style={{ backgroundColor: 'var(--max-bg)' }}
       >
         <div className="glass-background" />
@@ -49,8 +49,8 @@ export default function AllBlogsPage() {
         <div className="w-full max-w-6xl relative z-10">
           {/* Header */}
           <div className="mb-8">
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               className="glass-button inline-flex items-center px-3 py-2 rounded-lg transition-colors mb-4 text-white"
             >
               <svg width="20" height="20" fill="none" className="mr-2">
@@ -77,8 +77,8 @@ export default function AllBlogsPage() {
 
   if (error) {
     return (
-      <div 
-        className="min-h-screen text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center relative"
+      <div
+        className="min-h-screen text-white font-sans px-3 md:px- lg:px-[12rem] py-10 flex flex-col items-center relative"
         style={{ backgroundColor: 'var(--max-bg)' }}
       >
         <div className="glass-background" />
@@ -88,8 +88,8 @@ export default function AllBlogsPage() {
         <div className="w-full max-w-6xl relative z-10">
           {/* Header */}
           <div className="mb-8">
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               className="glass-button inline-flex items-center px-3 py-2 rounded-lg transition-colors mb-4 text-white"
             >
               <svg width="20" height="20" fill="none" className="mr-2">
@@ -123,8 +123,8 @@ export default function AllBlogsPage() {
   }
 
   return (
-    <div 
-      className="min-h-screen text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center relative"
+    <div
+      className="min-h-screen text-white font-sans px-3 md:px- lg:px-[12rem] py-10 flex flex-col items-center relative"
       style={{ backgroundColor: 'var(--max-bg)' }}
     >
       <div className="glass-background" />
@@ -134,8 +134,8 @@ export default function AllBlogsPage() {
       <div className="w-full max-w-6xl relative z-10">
         {/* Header */}
         <div className="mb-8">
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className="glass-button inline-flex items-center px-3 py-2 rounded-lg transition-colors mb-4 text-white"
           >
             <svg width="20" height="20" fill="none" className="mr-2">
@@ -225,7 +225,7 @@ export default function AllBlogsPage() {
                 {searchQuery ? 'No blogs found' : 'No Blogs Yet'}
               </h2>
               <p className="text-[#888] mb-4 relative z-10">
-                {searchQuery 
+                {searchQuery
                   ? `No blogs match your search for "${searchQuery}". Try a different search term.`
                   : "I haven't published any blogs yet. Check back soon for exciting content!"
                 }
@@ -238,7 +238,7 @@ export default function AllBlogsPage() {
                   Clear Search
                 </button>
               ) : (
-                <Link 
+                <Link
                   href="/"
                   className="glass-button inline-block px-6 py-3 rounded-lg transition-colors text-white"
                 >

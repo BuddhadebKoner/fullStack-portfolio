@@ -12,14 +12,12 @@ import Footer from "@/components/Footer";
 export default function Home() {
   const { data: homeData, isLoading, error, isFetching } = useHomeData();
 
-  // Show loading state only for initial load, not for background refetches
   if (isLoading) {
     return (
       <div
-        className="min-h-screen text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center justify-center relative"
+        className="min-h-screen text-white font-sans px-3 md:px- lg:px-[12rem] py-10 flex flex-col items-center justify-center relative"
         style={{ backgroundColor: 'var(--max-bg)' }}
       >
-        {/* Glassmorphism Background Pattern */}
         <div className="fixed inset-0 opacity-30">
           <div className="absolute inset-0 bg-gradient-to-br from-[var(--main-primary)] via-transparent to-[var(--main-secondary)]" />
           <div className="glass-grid-pattern" />
@@ -36,7 +34,7 @@ export default function Home() {
   if (error) {
     return (
       <div
-        className="min-h-screen text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center justify-center relative"
+        className="min-h-screen text-white font-sans px-3 md:px- lg:px-[12rem] py-10 flex flex-col items-center justify-center relative"
         style={{ backgroundColor: 'var(--max-bg)' }}
       >
         {/* Glassmorphism Background Pattern */}
@@ -85,7 +83,7 @@ export default function Home() {
   return (
     <>
       <div
-        className="min-h-screen text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center relative"
+        className="min-h-screen text-white font-sans px-3 md:px- lg:px-[12rem] py-10 flex flex-col items-center relative"
         style={{ backgroundColor: 'var(--max-bg)' }}
       >
         {/* Enhanced Glassmorphism Background */}

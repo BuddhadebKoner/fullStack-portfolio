@@ -45,7 +45,7 @@ export default function AllProjectsPage() {
   if (isLoading && !projects && !searchQuery) {
     return (
       <div 
-        className="min-h-screen text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center relative"
+        className="min-h-screen text-white font-sans px-3 md:px- lg:px-[12rem] py-10 flex flex-col items-center relative"
         style={{ backgroundColor: 'var(--max-bg)' }}
       >
         <div className="glass-background" />
@@ -84,7 +84,7 @@ export default function AllProjectsPage() {
   if (error) {
     return (
       <div 
-        className="min-h-screen text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center relative"
+        className="min-h-screen text-white font-sans px-3 md:px- lg:px-[12rem] py-10 flex flex-col items-center relative"
         style={{ backgroundColor: 'var(--max-bg)' }}
       >
         <div className="glass-background" />
@@ -130,7 +130,7 @@ export default function AllProjectsPage() {
 
   return (
     <div 
-      className="min-h-screen text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center relative"
+      className="min-h-screen text-white font-sans px-3 md:px- lg:px-[12rem] py-10 flex flex-col items-center relative"
       style={{ backgroundColor: 'var(--max-bg)' }}
     >
       <div className="glass-background" />

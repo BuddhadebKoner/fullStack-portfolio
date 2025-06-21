@@ -67,7 +67,7 @@ export default function BlogDetailPage() {
   if (isLoading) {
     return (
       <div 
-        className="min-h-screen text-white font-sans px-3 md:px-0 pb-10 flex flex-col items-center justify-center relative"
+        className="min-h-screen text-white font-sans px-3 md:px- lg:px-[12rem] pb-10 flex flex-col items-center justify-center relative"
         style={{ backgroundColor: 'var(--max-bg)' }}
       >
         <div className="glass-background" />
@@ -85,7 +85,7 @@ export default function BlogDetailPage() {
   if (error || !blog) {
     return (
       <div 
-        className="min-h-screen text-white font-sans px-3 md:px-0 pb-10 flex flex-col items-center justify-center relative"
+        className="min-h-screen text-white font-sans px-3 md:px- lg:px-[12rem] pb-10 flex flex-col items-center justify-center relative"
         style={{ backgroundColor: 'var(--max-bg)' }}
       >
         <div className="glass-background" />
@@ -113,7 +113,7 @@ export default function BlogDetailPage() {
 
   return (
     <div 
-      className="min-h-screen text-white font-sans relative"
+      className="min-h-screen text-white font-sans relative px-3 md:px- lg:px-[12rem]"
       style={{ backgroundColor: 'var(--max-bg)' }}
     >
       <div className="glass-background" />
@@ -132,7 +132,7 @@ export default function BlogDetailPage() {
         </div>
       )}
 
-      <div className="px-3 md:px-0 pb-10 flex flex-col items-center relative z-10">
+      <div className="px-3 md:px- lg:px-[12rem] pb-10 flex flex-col items-center relative z-10">
         <div className="w-full max-w-4xl mt-10">
           {/* Back Button */}
           <button

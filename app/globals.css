@@ -4,13 +4,21 @@
 @custom-variant dark (&:is(.dark *));
 
 
-body{
-  width: 100%;
-  height: 100%;
+html, body {
   margin: 0;
   padding: 0;
   overflow-y: auto;
   overflow-x: hidden;
+}
+
+/* Prevent horizontal scroll on all containers */
+* {
+  box-sizing: border-box;
+}
+
+/* Ensure all containers respect viewport width */
+.w-full {
+  max-width: 100%;
 }
 
 /* Glassmorphism Theme Variables */
@@ -101,10 +109,31 @@ body{
 /* Add to your global CSS file */
 .blogs-swiper {
   padding-bottom: 10px;
+  width: 100% !important;
+  overflow: hidden !important;
 }
 
 .blogs-swiper .swiper-slide {
   height: auto;
+  max-width: 100%;
+}
+
+/* Fix swiper wrapper overflow issues */
+.blogs-swiper .swiper-wrapper {
+  width: 100% !important;
+}
+
+/* Ensure Swiper doesn't cause horizontal scroll on mobile */
+@media (max-width: 640px) {
+  .blogs-swiper {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  
+  .blogs-swiper .swiper-slide {
+    width: calc(100% - 1rem) !important;
+    margin-right: 1rem !important;
+  }
 }
 
 :root {
@@ -337,4 +366,63 @@ body{
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--button-glass-hover-bg);
+}
+
+/* Responsive Container Utilities */
+.container-responsive {
+  width: 100%;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container-responsive {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .container-responsive {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-responsive {
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container-responsive {
+    padding-left: 4rem;
+    padding-right: 4rem;
+  }
+}
+
+@media (min-width: 1536px) {
+  .container-responsive {
+    padding-left: 6rem;
+    padding-right: 6rem;
+  }
+}
+
+/* Content width constraints */
+.content-container {
+  max-width: 1400px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Prevent any element from causing horizontal scroll */
+.no-overflow {
+  max-width: 100%;
+  overflow-x: hidden;
 }

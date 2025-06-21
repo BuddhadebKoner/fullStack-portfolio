@@ -21,7 +21,7 @@ export default function ProjectPage({ params }: ProjectPageProps) {
   if (isLoading) {
     return (
       <div 
-        className="min-h-screen text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center justify-center relative"
+        className="min-h-screen text-white font-sans px-3 md:px- lg:px-[12rem] py-10 flex flex-col items-center justify-center relative"
         style={{ backgroundColor: 'var(--max-bg)' }}
       >
         <div className="glass-background" />
@@ -39,7 +39,7 @@ export default function ProjectPage({ params }: ProjectPageProps) {
   if (error) {
     return (
       <div 
-        className="min-h-screen text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center justify-center relative"
+        className="min-h-screen text-white font-sans px-3 md:px- lg:px-[12rem] py-10 flex flex-col items-center justify-center relative"
         style={{ backgroundColor: 'var(--max-bg)' }}
       >
         <div className="glass-background" />
@@ -74,7 +74,7 @@ export default function ProjectPage({ params }: ProjectPageProps) {
   if (!project) {
     return (
       <div 
-        className="min-h-screen text-white font-sans px-3 md:px-0 py-10 flex flex-col items-center justify-center relative"
+        className="min-h-screen text-white font-sans px-3 md:px- lg:px-[12rem] py-10 flex flex-col items-center justify-center relative"
         style={{ backgroundColor: 'var(--max-bg)' }}
       >
         <div className="glass-background" />
@@ -121,7 +121,7 @@ export default function ProjectPage({ params }: ProjectPageProps) {
         </div>
       )}
 
-      <div className="px-3 md:px-0 py-10 flex flex-col items-center relative z-10">
+      <div className="px-3 md:px- lg:px-[12rem] py-10 flex flex-col items-center relative z-10">
         <div className="w-full max-w-4xl">
           {/* Header with Back Button */}
           <div className="mb-6">
